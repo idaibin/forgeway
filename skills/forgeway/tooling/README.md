@@ -10,9 +10,18 @@ builds Forgeway Product UI and packs its `product-ui/dist` only after build succ
 Normal build commands do not package automatically. See
 [REQ-FORGEWAY-003](../product/features/REQ-FORGEWAY-003-pack-and-cli-install.md).
 
-Install the Skill and a `forgeway` command together with
-`node scripts/install-skill.mjs --target <skill-directory>`; `--check` previews,
-`--bin-dir <directory>` selects the command directory. An owned install records
+The CLI ships with the Skill. Resolve the verified absolute directory of the
+loaded `SKILL.md`, then use `node "<skill-directory>/tooling/forgeway.mjs" <arguments>`
+from the task's working directory. Examples use the shorthand `forgeway`. A verified
+client-registered entrypoint for the same installed package is also usable.
+
+After a Skill-manager install, prepare only this copy's locked dependencies with
+`npm --prefix "<skill-directory>" ci --omit=dev --ignore-scripts` when the CLI is
+needed. Use `node scripts/install-skill.mjs --target <skill-directory>` for an
+owned Skill installation from source. Add `--runtime-dependencies` to install
+runtime dependencies in that target. Add `--bin-dir <directory>` only if a standalone
+shell command is explicitly wanted. `--check` previews the selected operation.
+An owned install records
 file hashes for later updates; `--update-from-head` supports old installations
 whose files equal this checkout's HEAD baseline. Existing
 unrelated commands are never overwritten. For one known, owner-verified local

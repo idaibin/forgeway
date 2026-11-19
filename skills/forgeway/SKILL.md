@@ -22,7 +22,9 @@ patches and existing code, including when a separate review Skill does the revie
   read both standards. If an applicable section cannot be read, record the
   missing reference.
 
-The installed Skill includes the `forgeway` command. In an established environment, run `forgeway pack create <directory> [--project <name>] [--out <directory>]` directly when packaging is in scope; it checks the required archive tools and verifies the resulting ZIP. Use `forgeway pack doctor` only for first-time setup or to diagnose a missing-tool error. `pack create` does not build or publish. See `product/features/REQ-FORGEWAY-003-pack-and-cli-install.md`.
+When a task needs the CLI, use the directory of the `SKILL.md` loaded by the host. With the target project as the working directory, run `node "<loaded-skill-root>/tooling/forgeway.mjs" <arguments>`, where `<loaded-skill-root>` is the verified absolute path. Reuse a host-registered command only if it resolves to that same entrypoint. In this package's documentation, `forgeway` is shorthand for this invocation. See [bundled CLI usage](tooling/README.md#pack-and-installed-command) for package-local dependencies.
+
+When packaging is in scope, use `pack create <directory> [--project <name>] [--out <directory>]` to check archive tools and verify the resulting ZIP. Use `pack doctor` for first-time setup or a missing-tool error. `pack create` does not build or publish. See `product/features/REQ-FORGEWAY-003-pack-and-cli-install.md`.
 
 For a user-approved fixed browser flow, the bundled `forgeway browser` commands validate and record it in one CLI run; read `product/features/REQ-FORGEWAY-002-browser-recording.md` and `tooling/README.md` first. A generated MP4 does not establish target access, visual correctness or delivery authorization. For build artifacts, `forgeway artifact doctor` and `forgeway artifact inspect <path>...` read files without extracting or executing them; their hashes and archive-member checks are artifact evidence only. See `product/features/REQ-FORGEWAY-004-artifact-inspection.md`.
 

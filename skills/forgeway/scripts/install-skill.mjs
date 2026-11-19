@@ -1,6 +1,5 @@
 import { readFile, readdir, lstat, mkdir, writeFile, unlink, realpath, rename, chmod, open } from "node:fs/promises";
 import { execFileSync, spawnSync } from "node:child_process";
-import { homedir } from "node:os";
 import { createHash, randomUUID } from "node:crypto";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -620,7 +619,7 @@ export async function updateSkillFromGit(source, target, { backupDirectory, remo
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   try {
     const args = process.argv.slice(2);
-    const usage = "Usage: node scripts/install-skill.mjs --target <directory> [--check] [--update-from-head] [--expected-installed-file <relative-path>=<sha256>]... [--bin-dir <directory>]";
+    const usage = "Usage: node scripts/install-skill.mjs --target <directory> [--check] [--runtime-dependencies] [--update-from-head] [--expected-installed-file <relative-path>=<sha256>]... [--bin-dir <directory>]";
     if (args.includes("--help")) console.log(`${usage}\nOr: node scripts/install-skill.mjs --sync --target <installation> --backup-dir <new-private-directory> [--source-root <checkout>] [--remote origin] [--branch main]\nExpected installed-file hashes permit replacement only for matching, ledger-owned files in the current distribution.`);
     else if (args.includes("--sync")) {
       const options = {};
@@ -647,9 +646,15 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
       if (position < 0 || !args[position + 1] || args[position + 1].startsWith("--") ||
           (binPosition >= 0 && (!args[binPosition + 1] || args[binPosition + 1].startsWith("--"))) ||
           expectedPositions.some(index => !args[index + 1] || args[index + 1].startsWith("--")) ||
-          args.some((arg, index) => !valueIndexes.has(index) && !["--target", "--check", "--update-from-head", "--bin-dir", "--expected-installed-file"].includes(arg)) ||
+          args.some((arg, index) => !valueIndexes.has(index) && !["--target", "--check", "--runtime-dependencies", "--update-from-head", "--bin-dir", "--expected-installed-file"].includes(arg)) ||
           args.filter(arg => arg === "--target").length !== 1 || args.filter(arg => arg === "--bin-dir").length > 1) throw new Error(usage);
-      console.log(JSON.stringify(await installSkill(ROOT, args[position + 1], { check: args.includes("--check"), updateFromHead: args.includes("--update-from-head"), expectedInstalledFiles, binDir: binPosition >= 0 ? args[binPosition + 1] : path.join(homedir(), ".local", "bin") }), null, 2));
+      console.log(JSON.stringify(await installSkill(ROOT, args[position + 1], {
+        check: args.includes("--check"),
+        updateFromHead: args.includes("--update-from-head"),
+        expectedInstalledFiles,
+        runtimeDependencies: args.includes("--runtime-dependencies"),
+        binDir: binPosition >= 0 ? args[binPosition + 1] : null,
+      }), null, 2));
     }
   } catch (error) { console.error(error.message); if (error.update) console.error(JSON.stringify(error.update)); process.exitCode = 1; }
 }
