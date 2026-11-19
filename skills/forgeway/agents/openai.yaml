@@ -1,0 +1,7 @@
+interface:
+  display_name: "Forgeway"
+  short_description: "Orchestrate spec-driven delivery"
+  default_prompt: "Use $forgeway to inspect this project and route its next delivery stage."
+
+policy:
+  allow_implicit_invocation: true

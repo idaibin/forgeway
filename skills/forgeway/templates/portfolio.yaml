@@ -1,0 +1,22 @@
+schema_version: "1.1"
+campaign_id: sample-campaign
+system_commit_sha: 0123456789abcdef0123456789abcdef01234567
+expected_projects: 1
+required_profiles: [custom]
+required_gates: [source, automated, artifact, runtime, independent-review]
+evidence_root: evidence/runs/sample-campaign
+projects:
+  - project_id: sample-project
+    topology: monorepo
+    repositories:
+      - id: application
+        repository: example/sample-project
+        basis: { ref: main, commit_sha: 0123456789abcdef0123456789abcdef01234567 }
+    components:
+      - { id: backend, repository_id: application, path: backend, required_gates: [source, automated, artifact, runtime, independent-review] }
+      - { id: web, repository_id: application, path: web, required_gates: [source, automated, artifact, runtime, independent-review] }
+    mode: delivery
+    profile: custom
+    manifest_source: campaign
+    project_manifest: evaluation/campaigns/sample-campaign/sample-project/project.yaml
+    requirement_ids: [REQ-SAMPLE-001]

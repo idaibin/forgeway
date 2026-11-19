@@ -1,0 +1,27 @@
+schema_version: "1.2"
+id: TASK-SAMPLE-001
+requirement_ids: [REQ-SAMPLE-001]
+owner: { id: implementation-owner, role: implementation }
+basis:
+  - { repository_id: application, commit_sha: 0123456789abcdef0123456789abcdef01234567 }
+scope:
+  include:
+    - { component_id: backend, path: backend/src/** }
+    - { component_id: web, path: web/src/** }
+  exclude:
+    - { component_id: backend, path: backend/deployment/production/** }
+dependencies: []
+outputs:
+  - kind: implementation
+    path: backend/src
+    component_id: backend
+    owner: { id: implementation-owner, role: source }
+    status: Not verified
+commands:
+  - id: test
+    component_id: backend
+    cwd: backend
+    argv: ["project-native-check"]
+    timeout_seconds: 1800
+stop_conditions:
+  - Stop when a required owner, contract or environment cannot be verified.

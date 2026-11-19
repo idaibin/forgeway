@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:forgeway:project-profile:v1",
+  "title": "Forgeway project-local personal profile",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "roles", "preferences"],
+  "properties": {
+    "schema_version": { "const": "forgeway-project-profile/1" },
+    "roles": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "enum": ["project-management", "product", "ui", "frontend", "backend", "test", "delivery"]
+      }
+    },
+    "preferences": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["language", "response_style", "document_style", "question_mode"],
+      "properties": {
+        "language": { "enum": ["zh-CN", "en-US"] },
+        "response_style": { "enum": ["concise", "detailed"] },
+        "document_style": { "const": "final" },
+        "question_mode": { "const": "structured" }
+      }
+    }
+  }
+}

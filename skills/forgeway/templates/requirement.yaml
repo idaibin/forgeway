@@ -1,0 +1,29 @@
+schema_version: "1.1"
+id: REQ-SAMPLE-001
+title: Example observable behavior
+owner: { id: product-owner, role: product }
+basis:
+  - { repository_id: application, commit_sha: 0123456789abcdef0123456789abcdef01234567 }
+state: Draft
+product_ref: delivery/product/features/example.md
+acceptance_criteria:
+  - An authorized user observes the defined successful outcome.
+  - Failure and permission states are explicit and testable.
+traces:
+  data: { applicable: false, reason: This example has no persistent data effect. }
+  interface:
+    applicable: true
+    artifact: { kind: interface, path: delivery/interfaces/example.md, component_id: backend, owner: { id: interface-owner, role: interface }, status: Not verified }
+  ui:
+    applicable: true
+    artifact: { kind: ui, path: delivery/ui/example.md, component_id: web, owner: { id: ui-owner, role: ui }, status: Not verified }
+  implementation:
+    applicable: true
+    artifact: { kind: implementation, path: backend/src, component_id: backend, owner: { id: implementation-owner, role: source }, status: Not verified }
+  test:
+    applicable: true
+    artifact: { kind: test, path: docs/testing/backend, component_id: backend, owner: { id: verification-owner, role: verification }, status: Not verified }
+  evidence:
+    applicable: true
+    artifact: { kind: evidence, path: delivery/evidence/REQ-SAMPLE-001, component_id: backend, owner: { id: verification-owner, role: verification }, status: Not verified }
+required_gates: [source, automated, artifact, runtime, independent-review]

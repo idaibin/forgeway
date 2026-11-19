@@ -1,0 +1,52 @@
+schema_version: "1.1"
+campaign_id: sample-campaign
+system_commit_sha: 0123456789abcdef0123456789abcdef01234567
+portfolio_sha256: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+generated_at: "2026-01-01T00:00:00Z"
+expected_projects: 1
+required_profiles: [custom]
+required_gates: [source, automated, artifact, runtime, independent-review]
+verdict: Partial
+projects:
+  - project_id: sample-project
+    topology: monorepo
+    repositories:
+      - { id: application, commit_sha: 0123456789abcdef0123456789abcdef01234567 }
+    components:
+      - component_id: backend
+        repository_id: application
+        required_gates: [source, automated, artifact, runtime, independent-review]
+        gates: { source: pass, automated: pass, artifact: pass, runtime: partial, independent-review: not-run }
+        gate_evidence:
+          source: [EVD-SAMPLE-001]
+          automated: [EVD-SAMPLE-002]
+          artifact: [EVD-SAMPLE-003]
+          runtime: [EVD-SAMPLE-007]
+          independent-review: []
+      - component_id: web
+        repository_id: application
+        required_gates: [source, automated, artifact, runtime, independent-review]
+        gates: { source: pass, automated: pass, artifact: pass, runtime: partial, independent-review: not-run }
+        gate_evidence:
+          source: [EVD-SAMPLE-004]
+          automated: [EVD-SAMPLE-005]
+          artifact: [EVD-SAMPLE-006]
+          runtime: [EVD-SAMPLE-008]
+          independent-review: []
+    mode: delivery
+    profile: custom
+    manifest_source: campaign
+    requirement_ids: [REQ-SAMPLE-001]
+    gates: { source: pass, automated: pass, artifact: pass, runtime: partial, independent-review: not-run }
+    gate_evidence:
+      source: [EVD-SAMPLE-001, EVD-SAMPLE-004]
+      automated: [EVD-SAMPLE-002, EVD-SAMPLE-005]
+      artifact: [EVD-SAMPLE-003, EVD-SAMPLE-006]
+      runtime: [EVD-SAMPLE-007, EVD-SAMPLE-008]
+      independent-review: []
+    gap_ids: [G-SAMPLE-001]
+    verdict: Partial
+    next_action:
+      owner: { id: work-owner, role: verification }
+      action: Complete runtime and independent review evidence.
+      reason_code: INCOMPLETE_EVIDENCE

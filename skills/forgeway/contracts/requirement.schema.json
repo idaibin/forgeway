@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:forgeway:requirement:v1",
+  "title": "Requirement record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "id", "title", "owner", "basis", "state", "product_ref", "acceptance_criteria", "traces"],
+  "properties": {
+    "schema_version": { "$ref": "urn:forgeway:common:v1#/$defs/schemaVersion" },
+    "id": { "$ref": "urn:forgeway:common:v1#/$defs/requirementId" },
+    "title": { "type": "string", "minLength": 3 },
+    "owner": { "$ref": "urn:forgeway:common:v1#/$defs/owner" },
+    "basis": {},
+    "state": { "enum": ["Draft", "Open", "Ready", "In progress", "Blocked", "Verified", "Closed"] },
+    "product_ref": { "$ref": "urn:forgeway:common:v1#/$defs/relativePath" },
+    "acceptance_criteria": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 5 } },
+    "traces": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["data", "interface", "ui", "implementation", "test", "evidence"],
+      "properties": { "data": {}, "interface": {}, "ui": {}, "implementation": {}, "test": {}, "evidence": {} }
+    },
+    "gap_ids": { "type": "array", "uniqueItems": true, "items": { "$ref": "urn:forgeway:common:v1#/$defs/gapId" } },
+    "required_gates": { "type": "array", "uniqueItems": true, "items": { "$ref": "urn:forgeway:common:v1#/$defs/gate" } }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "schema_version": { "const": "1.0" } }, "required": ["schema_version"] },
+      "then": {
+        "properties": {
+          "basis": {
+            "type": "object", "additionalProperties": false, "required": ["repository", "commit_sha"],
+            "properties": { "repository": { "type": "string", "minLength": 2 }, "commit_sha": { "$ref": "urn:forgeway:common:v1#/$defs/commitSha" } }
+          },
+          "traces": {
+            "type": "object",
+            "properties": {
+              "data": { "$ref": "urn:forgeway:common:v1#/$defs/trace" },
+              "interface": { "$ref": "urn:forgeway:common:v1#/$defs/trace" },
+              "ui": { "$ref": "urn:forgeway:common:v1#/$defs/trace" },
+              "implementation": { "$ref": "urn:forgeway:common:v1#/$defs/trace" },
+              "test": { "$ref": "urn:forgeway:common:v1#/$defs/trace" },
+              "evidence": { "$ref": "urn:forgeway:common:v1#/$defs/trace" }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "schema_version": { "const": "1.1" } }, "required": ["schema_version"] },
+      "then": {
+        "properties": {
+          "basis": { "type": "array", "minItems": 1, "items": { "$ref": "urn:forgeway:common:v1#/$defs/basisRef" } },
+          "traces": {
+            "type": "object",
+            "properties": {
+              "data": { "$ref": "urn:forgeway:common:v1#/$defs/scopedTrace" },
+              "interface": { "$ref": "urn:forgeway:common:v1#/$defs/scopedTrace" },
+              "ui": { "$ref": "urn:forgeway:common:v1#/$defs/scopedTrace" },
+              "implementation": { "$ref": "urn:forgeway:common:v1#/$defs/scopedTrace" },
+              "test": { "$ref": "urn:forgeway:common:v1#/$defs/scopedTrace" },
+              "evidence": { "$ref": "urn:forgeway:common:v1#/$defs/scopedTrace" }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

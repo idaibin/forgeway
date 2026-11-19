@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:forgeway:package-manifest:v1",
+  "title": "Forgeway immutable package manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "package_id",
+    "repository_id",
+    "basis",
+    "files",
+    "aggregate_sha256"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "package_id": {
+      "type": "string",
+      "minLength": 8,
+      "pattern": "^pkg:[A-Za-z0-9._:-]+$"
+    },
+    "repository_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z][A-Za-z0-9._:-]*$"
+    },
+    "basis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repository_id", "worktree_state", "head_sha"],
+      "properties": {
+        "repository_id": { "type": "string", "minLength": 1 },
+        "worktree_state": { "enum": ["clean", "dirty"] },
+        "head_sha": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "base_commit_sha": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "source_root": { "type": "string", "minLength": 1 },
+        "git_status_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "files": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/file" },
+      "uniqueItems": true
+    },
+    "aggregate_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Optional creation metadata. It is not part of package identity; event envelopes own occurred_at."
+    }
+  },
+  "$defs": {
+    "file": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "status", "sha256", "mode", "bytes"],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^(?!/)(?!~)(?![A-Za-z]:[\\\\/])(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\).+"
+        },
+        "status": { "enum": ["tracked", "dirty", "untracked", "deleted"] },
+        "sha256": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "mode": {
+          "type": "string",
+          "pattern": "^(?:[0-7]{6}|160000)$"
+        },
+        "bytes": { "type": "integer", "minimum": 0 },
+        "exists": { "type": "boolean" }
+      }
+    }
+  }
+}

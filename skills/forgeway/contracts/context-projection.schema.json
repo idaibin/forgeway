@@ -1,0 +1,151 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:forgeway:context-projection:v1",
+  "title": "Forgeway bounded read-only project context projection",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "projection_kind",
+    "authorizes_execution",
+    "basis",
+    "current_stage",
+    "ref_closure",
+    "typed_artifacts",
+    "scope",
+    "assets",
+    "relations",
+    "attempts",
+    "observations",
+    "package_artifacts",
+    "receipts",
+    "gate_projection",
+    "unresolved",
+    "actions",
+    "projection_hash"
+  ],
+  "properties": {
+    "schema_version": { "const": "forgeway-context-projection/1" },
+    "projection_kind": { "const": "project" },
+    "authorizes_execution": { "const": false },
+    "basis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["graph", "delivery"],
+      "properties": {
+        "graph": { "type": "object" },
+        "delivery": { "type": "object" }
+      }
+    },
+    "current_stage": { "type": "string", "minLength": 1 },
+    "ref_closure": {
+      "type": "object",
+      "required": ["typed_artifact_refs", "typed_artifact_edges", "asset_refs", "edge_refs", "attempt_refs", "observation_refs", "package_artifact_refs", "observation_artifact_edges", "receipt_refs"],
+      "properties": {
+        "typed_artifact_refs": { "type": "array", "items": { "type": "string" } },
+        "typed_artifact_edges": { "type": "array", "items": { "type": "object" } },
+        "asset_refs": { "type": "array", "items": { "type": "string" } },
+        "edge_refs": { "type": "array", "items": { "type": "string" } },
+        "attempt_refs": { "type": "array", "items": { "type": "string" } },
+        "observation_refs": { "type": "array", "items": { "type": "string" } },
+        "package_artifact_refs": { "type": "array", "items": { "type": "string" } },
+        "observation_artifact_edges": { "type": "array", "items": { "$ref": "#/$defs/observation_artifact_edge" } },
+        "receipt_refs": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "typed_artifacts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["kind", "id", "schema_version", "source_sha256", "content_sha256", "value"],
+        "properties": {
+          "kind": { "enum": ["project", "requirement", "task", "change", "evidence"] },
+          "id": { "type": "string", "minLength": 1 },
+          "schema_version": { "type": "string", "minLength": 1 },
+          "source_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+          "content_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+          "value": { "type": "object" }
+        }
+      }
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["paths", "excluded_paths", "graph_paths", "delivery_paths", "seed_asset_ids", "depth", "limit"],
+      "properties": {
+        "paths": { "type": "array", "uniqueItems": true, "items": { "type": "string" } },
+        "excluded_paths": { "type": "array", "uniqueItems": true, "items": { "type": "string" } },
+        "graph_paths": { "type": "array", "uniqueItems": true, "items": { "type": "string" } },
+        "delivery_paths": { "type": "array", "uniqueItems": true, "items": { "type": "string" } },
+        "seed_asset_ids": { "type": "array", "uniqueItems": true, "items": { "type": "string" } },
+        "depth": { "type": "integer", "minimum": 0, "maximum": 20 },
+        "limit": { "type": "integer", "minimum": 1, "maximum": 5000 }
+      }
+    },
+    "assets": { "type": "array" },
+    "relations": { "type": "array" },
+    "attempts": { "type": "array" },
+    "observations": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["eligible", "ineligible", "stale"],
+      "properties": {
+        "eligible": { "type": "array" },
+        "ineligible": { "type": "array" },
+        "stale": { "type": "array" }
+      }
+    },
+    "package_artifacts": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/package_artifact" }
+    },
+    "receipts": { "type": "array" },
+    "gate_projection": { "$ref": "urn:forgeway:gate-projection:v1" },
+    "unresolved": { "type": "array" },
+    "actions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["blocking", "available", "recommended"],
+      "properties": {
+        "blocking": { "type": "array", "items": { "$ref": "#/$defs/action" } },
+        "available": { "type": "array", "items": { "$ref": "#/$defs/action" } },
+        "recommended": { "type": "array", "maxItems": 1, "items": { "$ref": "#/$defs/action" } }
+      }
+    },
+    "projection_hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+  },
+  "$defs": {
+    "package_artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ref", "package_id", "sha256", "paths"],
+      "properties": {
+        "ref": { "type": "string", "minLength": 1 },
+        "package_id": { "type": "string", "pattern": "^pkg:" },
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "paths": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } }
+      }
+    },
+    "observation_artifact_edge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["observation_id", "relation", "package_artifact_ref"],
+      "properties": {
+        "observation_id": { "type": "string", "pattern": "^obs:" },
+        "relation": { "const": "observes-package-artifact" },
+        "package_artifact_ref": { "type": "string", "minLength": 1 }
+      }
+    },
+    "action": {
+      "type": "object",
+      "required": ["action_id", "kind", "reason", "authorizes_execution"],
+      "properties": {
+        "action_id": { "type": "string", "minLength": 1 },
+        "kind": { "type": "string", "minLength": 1 },
+        "reason": { "type": "string", "minLength": 1 },
+        "authorizes_execution": { "const": false }
+      }
+    }
+  }
+}

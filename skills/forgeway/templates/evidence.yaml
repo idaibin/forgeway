@@ -1,0 +1,25 @@
+schema_version: "1.1"
+id: EVD-SAMPLE-001
+requirement_ids: [REQ-SAMPLE-001]
+task_ids: [TASK-SAMPLE-001]
+owner: { id: verification-owner, role: verification }
+basis:
+  - { repository_id: application, commit_sha: 0123456789abcdef0123456789abcdef01234567, worktree_state: clean }
+category: automated
+status: Not verified
+started_at: "2026-01-01T00:00:00Z"
+finished_at: "2026-01-01T00:00:00Z"
+command:
+  id: test
+  component_id: backend
+  cwd: .
+  argv: ["project-native-check"]
+  timeout_seconds: 1800
+environment: local-isolated
+result: not-run
+limitations:
+  - Replace this template with an immutable attempt after execution.
+next_action:
+  owner: { id: verification-owner, role: verification }
+  action: Execute the declared command and create a new immutable attempt.
+  reason_code: INCOMPLETE_EVIDENCE

@@ -1,0 +1,552 @@
+{
+  "schema_version": "forgeway-stage-registry/1",
+  "registry_id": "forgeway-delivery",
+  "registry_version": "1.7.0",
+  "lifecycle": {
+    "owner": "Forgeway workflow kernel",
+    "producer": "Forgeway repository maintainers",
+    "non_llm_consumers": [
+      "tooling/workflow-stage.mjs",
+      "scripts/validate-stage-registry-types.mjs",
+      "fixtures/workflow-stage/test-core.mjs",
+      "host coordinator adapter"
+    ],
+    "validator": "npm run validate:typed-registry && node tooling/workflow-stage.mjs validate",
+    "drift_policy": "Any stage id, order, applicability, entry condition, exit condition, mutation boundary, stop state, or invalidation rule change must update this registry, the owning workflow document, and focused fixtures in one change.",
+    "retirement_rule": "Retire this registry version only after every named non-LLM consumer reads a successor and replay fixtures prove equivalent stop, resume, and earliest-missing-stage behavior."
+  },
+  "capability_contracts": {
+    "repository.asset.scan": { "version": "2.0.0", "accepts": ["urn:skills:repository-scope:v1"], "produces": ["urn:skills:asset-map-result:v1"], "maximum_mutation_class": "artifact-write", "evidence_requirements": ["basis_or_scope_identity", "runtime_observation_or_static_result"] },
+    "repository.asset.query": { "version": "1.0.0", "accepts": ["urn:skills:asset-map-result:v1"], "produces": ["urn:skills:asset-map-result:v1"], "maximum_mutation_class": "read-only", "evidence_requirements": ["basis_or_scope_identity", "runtime_observation_or_static_result"] },
+    "product.contract.specify": { "version": "1.0.0", "accepts": ["urn:skills:product-request:v1"], "produces": ["urn:skills:product-contract:v1"], "maximum_mutation_class": "artifact-write", "evidence_requirements": ["basis_or_scope_identity", "runtime_observation_or_static_result"] },
+    "ui.contract.specify": { "version": "1.3.0", "accepts": ["urn:skills:ui-request:v1"], "produces": ["urn:skills:ui-contract:v1"], "maximum_mutation_class": "artifact-write", "evidence_requirements": ["basis_or_scope_identity", "runtime_observation_or_static_result", "project_declared_shared_ui_authority_and_validation_profile", "google_design_format_evidence_when_explicitly_adopted", "design_completeness_source_approval_closure_when_additional_policy_adopted", "trusted_human_approval_binding_when_additional_policy_requires_it"] },
+    "frontend.source.implement": { "version": "1.4.0", "accepts": ["urn:skills:frontend-change-request:v1"], "produces": ["urn:skills:source-change-result:v1"], "maximum_mutation_class": "source-write", "evidence_requirements": ["basis_or_scope_identity", "runtime_observation_or_static_result", "source_owner_identity_for_change_or_noop_confirmation"] },
+    "typescript.source.implement": { "version": "1.0.0", "accepts": ["urn:skills:typescript-change-request:v1"], "produces": ["urn:skills:source-change-result:v1"], "maximum_mutation_class": "source-write", "evidence_requirements": ["basis_or_scope_identity", "runtime_observation_or_static_result"] },
+    "java.source.implement": { "version": "1.1.0", "accepts": ["urn:skills:java-change-request:v1"], "produces": ["urn:skills:source-change-result:v1"], "maximum_mutation_class": "source-write", "evidence_requirements": ["basis_or_scope_identity", "runtime_observation_or_static_result"] },
+    "rust.source.implement": { "version": "1.0.0", "accepts": ["urn:skills:rust-change-request:v1"], "produces": ["urn:skills:source-change-result:v1"], "maximum_mutation_class": "source-write", "evidence_requirements": ["basis_or_scope_identity", "runtime_observation_or_static_result"] },
+    "repository.change.review": { "version": "1.0.0", "accepts": ["urn:skills:review-request:v1"], "produces": ["urn:skills:review-findings:v1"], "maximum_mutation_class": "read-only", "evidence_requirements": ["basis_or_scope_identity", "runtime_observation_or_static_result"] },
+    "repository.git.deliver": { "version": "1.2.0", "accepts": ["urn:skills:delivery-request:v1"], "produces": ["urn:skills:delivery-receipt:v1"], "maximum_mutation_class": "git-write", "evidence_requirements": ["basis_or_scope_identity", "runtime_observation_or_static_result"] }
+  },
+  "goals": {
+    "inspect": {
+      "terminal_stage": "project-discovery",
+      "description": "Fix the project basis, classify native authorities, and return the first safe next stage without target source or external mutation."
+    },
+    "to-spec": {
+      "terminal_stage": "spec-readiness",
+      "description": "Resolve only the specification lanes applicable to the requested slice and project a bounded implementation-readiness result."
+    },
+    "implement": {
+      "terminal_stage": "implementation",
+      "description": "Reach an authorized source result for one accepted Task without implying verification or delivery."
+    },
+    "verify": {
+      "terminal_stage": "verification",
+      "description": "Produce the required source, automated, artifact, and runtime evidence for the selected scope."
+    },
+    "review": {
+      "terminal_stage": "review",
+      "description": "Complete an independent fixed-basis review after applicable verification."
+    },
+    "deliver": {
+      "terminal_stage": "close",
+      "description": "Complete separately authorized delivery actions and close as Pass, Fail, Blocked, Gap, or Change."
+    }
+  },
+  "interrupts": [
+    {
+      "id": "change-control",
+      "contract_version": "1.3.0",
+      "workflow_ref": "workflows/change-control.md",
+      "execution_kind": "host",
+      "host_adapter": { "contract_id": "forgeway.change-control", "contract_version": "1.1.0", "runtime_binding": "external-required", "implementation_status": "not-verified" },
+      "capability_request": "delivery.change.control",
+      "maximum_effect": "artifact-write",
+      "trigger": "An accepted behavior, contract, authority, basis, scope, or required gate changes after downstream work has begun.",
+      "exit_conditions": [
+        "change-record-fixed-to-previous-basis",
+        "affected-requirements-and-stages-listed",
+        "revalidation-and-rollback-plan-recorded",
+        "affected-stage-states-invalidated"
+      ],
+      "stop_states": [
+        "input-not-ready",
+        "basis-conflict",
+        "confirmation-required",
+        "result-invalid"
+      ]
+    }
+  ],
+  "stages": [
+    {
+      "id": "project-discovery",
+      "order": 0,
+      "contract_version": "1.2.0",
+      "workflow_ref": "workflows/00-project-discovery.md",
+      "applicability": "required",
+      "input_from": "run-input",
+      "exit_evidence": { "producer_capabilities": ["repository.asset.scan", "repository.asset.query"], "observation_validator_id": "forgeway.delivery.observation", "payload_validator_ids": ["forgeway.stage.project-discovery/1"], "target_binding": "result-package-and-exit-condition", "default": { "kinds": ["source-assertion"], "outcomes": ["satisfied"] } },
+      "execution_kind": "capability",
+      "capability_resolution": {
+        "candidates": ["repository.asset.scan"],
+        "conditional_adapters": ["repository.asset.query"]
+      },
+      "capability_request": "project.asset.discover",
+      "support_capability_requests": [
+        "repository.asset.scan",
+        "repository.asset.query"
+      ],
+      "maximum_effect": "artifact-write",
+      "entry_conditions": [
+        "target-and-goal-bounded",
+        "effective-root-resolvable"
+      ],
+      "exit_conditions": [
+        "basis-fixed",
+        "guidance-and-dirty-exclusions-recorded",
+        "native-authorities-classified",
+        "gaps-and-first-safe-next-stage-recorded"
+      ],
+      "stop_states": [
+        "basis-conflict",
+        "scope-ambiguous",
+        "owner-unresolved",
+        "capability-unavailable",
+        "capability-ambiguous",
+        "result-invalid",
+        "evidence-incomplete"
+      ],
+      "invalidation_triggers": [
+        "repository-or-component-basis-changed",
+        "effective-guidance-changed",
+        "include-or-exclude-scope-changed",
+        "native-authority-owner-changed"
+      ]
+    },
+    {
+      "id": "product-requirement",
+      "order": 1,
+      "contract_version": "1.2.0",
+      "workflow_ref": "workflows/02-product-and-requirement.md",
+      "applicability": "required",
+      "input_from": "previous-terminal",
+      "exit_evidence": { "producer_capabilities": ["product.contract.specify"], "observation_validator_id": "forgeway.delivery.observation", "payload_validator_ids": ["forgeway.stage.product-requirement/1"], "target_binding": "result-package-and-exit-condition", "default": { "kinds": ["artifact-validation"], "outcomes": ["satisfied"] } },
+      "execution_kind": "capability",
+      "capability_resolution": { "candidates": ["product.contract.specify"] },
+      "capability_request": "product.contract.specify",
+      "support_capability_requests": [
+        "domain.model.define"
+      ],
+      "maximum_effect": "artifact-write",
+      "entry_conditions": [
+        "project-discovery-complete",
+        "product-intent-or-existing-product-authority-available"
+      ],
+      "exit_conditions": [
+        "product-authority-resolved",
+        "material-decisions-classified",
+        "requirement-and-observable-acceptance-ready",
+        "product-confirmation-recorded"
+      ],
+      "stop_states": [
+        "input-not-ready",
+        "scope-ambiguous",
+        "product-confirmation-required",
+        "capability-unavailable",
+        "capability-ambiguous",
+        "result-invalid"
+      ],
+      "invalidation_triggers": [
+        "user-visible-behavior-changed",
+        "business-rule-or-permission-changed",
+        "failure-semantics-or-acceptance-changed",
+        "product-authority-replaced"
+      ]
+    },
+    {
+      "id": "solution-contracts",
+      "order": 2,
+      "contract_version": "1.3.0",
+      "workflow_ref": "workflows/03-solution-interface-data.md",
+      "applicability": "conditional",
+      "input_from": "previous-terminal",
+      "exit_evidence": { "producer_capabilities": ["forgeway.target-authority-resolution"], "observation_validator_id": "forgeway.delivery.observation", "payload_validator_ids": ["forgeway.stage.solution-contracts/1"], "target_binding": "result-package-and-exit-condition", "default": { "kinds": ["artifact-validation"], "outcomes": ["satisfied"] } },
+      "execution_kind": "host",
+      "host_adapter": { "contract_id": "forgeway.target-authority-resolution", "contract_version": "1.0.0", "runtime_binding": "external-required", "implementation_status": "not-verified" },
+      "capability_request": "solution.contract.resolve",
+      "support_capability_requests": [
+        "domain.model.define",
+        "api.contract.specify",
+        "target.interface.owner",
+        "target.data.owner",
+        "target.architecture.owner"
+      ],
+      "maximum_effect": "artifact-write",
+      "entry_conditions": [
+        "product-requirement-complete",
+        "solution-lane-applicability-decided"
+      ],
+      "exit_conditions": [
+        "native-interface-data-and-architecture-authorities-resolved",
+        "contract-state-owner-and-consumers-recorded",
+        "cross-boundary-failure-and-compatibility-decisions-recorded",
+        "verification-dimensions-defined"
+      ],
+      "stop_states": [
+        "input-not-ready",
+        "authority-conflict",
+        "confirmation-required",
+        "capability-unavailable",
+        "capability-ambiguous",
+        "result-invalid"
+      ],
+      "invalidation_triggers": [
+        "native-interface-authority-changed",
+        "data-lifecycle-or-migration-intent-changed",
+        "architecture-boundary-changed",
+        "contract-content-hash-changed"
+      ]
+    },
+    {
+      "id": "ui-specification",
+      "order": 3,
+      "contract_version": "1.3.0",
+      "workflow_ref": "workflows/04-ui-specification.md",
+      "applicability": "conditional",
+      "input_from": "previous-terminal",
+      "exit_evidence": { "producer_capabilities": ["ui.contract.specify"], "observation_validator_id": "forgeway.delivery.observation", "payload_validator_ids": ["forgeway.stage.ui-specification/1"], "target_binding": "result-package-and-exit-condition", "default": { "kinds": ["artifact-validation"], "outcomes": ["satisfied"] } },
+      "execution_kind": "capability",
+      "capability_resolution": { "candidates": ["ui.contract.specify"] },
+      "capability_request": "ui.contract.specify",
+      "support_capability_requests": [
+        "design.source.inspect",
+        "browser.runtime.observe"
+      ],
+      "maximum_effect": "artifact-write",
+      "entry_conditions": [
+        "product-requirement-complete",
+        "ui-lane-applicability-decided",
+        "visual-source-disposition-recorded"
+      ],
+      "exit_conditions": [
+        "selected-source-and-rights-boundary-fixed",
+        "feature-ui-contract-and-states-resolved",
+        "viewport-accessibility-and-runtime-evidence-matrix-defined",
+        "ui-readiness-or-explicit-blocker-recorded"
+      ],
+      "stop_states": [
+        "input-not-ready",
+        "evidence-incomplete",
+        "confirmation-required",
+        "capability-unavailable",
+        "capability-ambiguous",
+        "result-invalid"
+      ],
+      "invalidation_triggers": [
+        "selected-visual-source-changed",
+        "design-authority-content-hash-changed",
+        "viewport-or-state-acceptance-changed",
+        "product-behavior-affecting-ui-changed"
+      ]
+    },
+    {
+      "id": "spec-readiness",
+      "order": 4,
+      "contract_version": "1.2.0",
+      "workflow_ref": "workflows/05-spec-readiness.md",
+      "applicability": "required",
+      "input_from": "previous-terminal",
+      "exit_evidence": { "producer_capabilities": ["forgeway.kernel.spec-readiness"], "observation_validator_id": "forgeway.delivery.observation", "payload_validator_ids": ["forgeway.stage.spec-readiness/1"], "target_binding": "result-package-and-exit-condition", "default": { "kinds": ["artifact-validation"], "outcomes": ["satisfied"] } },
+      "execution_kind": "kernel",
+      "capability_request": "workflow.spec.readiness.project",
+      "support_capability_requests": [],
+      "maximum_effect": "read-only",
+      "entry_conditions": [
+        "product-requirement-complete",
+        "every-conditional-spec-lane-completed-or-explicitly-skipped"
+      ],
+      "exit_conditions": [
+        "all-applicable-spec-lanes-terminal",
+        "blocking-decisions-and-not-verified-boundaries-listed",
+        "spec-readiness-projection-produced",
+        "source-mutation-gate-disposition-recorded"
+      ],
+      "stop_states": [
+        "input-not-ready",
+        "product-confirmation-required",
+        "confirmation-required",
+        "result-invalid"
+      ],
+      "invalidation_triggers": [
+        "any-applicable-spec-lane-invalidated",
+        "requirement-readiness-changed",
+        "source-mutation-scope-changed"
+      ]
+    },
+    {
+      "id": "task-planning",
+      "order": 5,
+      "contract_version": "1.2.0",
+      "workflow_ref": "workflows/06-task-planning.md",
+      "applicability": "required",
+      "input_from": "previous-terminal",
+      "exit_evidence": { "producer_capabilities": ["forgeway.task-planning"], "observation_validator_id": "forgeway.delivery.observation", "payload_validator_ids": ["forgeway.stage.task-planning/1"], "target_binding": "result-package-and-exit-condition", "default": { "kinds": ["artifact-validation"], "outcomes": ["satisfied"] } },
+      "execution_kind": "host",
+      "host_adapter": { "contract_id": "forgeway.task-planning", "contract_version": "1.0.0", "runtime_binding": "external-required", "implementation_status": "not-verified" },
+      "capability_request": "delivery.task.plan",
+      "support_capability_requests": [
+        "repository.asset.query"
+      ],
+      "maximum_effect": "artifact-write",
+      "entry_conditions": [
+        "spec-readiness-complete",
+        "source-mutation-authorized"
+      ],
+      "exit_conditions": [
+        "task-fixed-to-basis-and-requirement",
+        "include-exclude-scope-and-owner-resolved",
+        "vertical-slices-dependencies-and-stop-conditions-recorded",
+        "native-validation-commands-recorded"
+      ],
+      "stop_states": [
+        "input-not-ready",
+        "source-mutation-confirmation-required",
+        "scope-ambiguous",
+        "capability-unavailable",
+        "capability-ambiguous",
+        "result-invalid"
+      ],
+      "invalidation_triggers": [
+        "basis-or-authorized-scope-changed",
+        "requirement-or-applicable-contract-changed",
+        "dependency-or-validation-command-changed"
+      ]
+    },
+    {
+      "id": "implementation",
+      "order": 6,
+      "contract_version": "1.2.0",
+      "workflow_ref": "workflows/07-implementation.md",
+      "applicability": "required",
+      "input_from": "previous-terminal",
+      "exit_evidence": {
+        "producer_capabilities": ["frontend.source.implement", "typescript.source.implement", "java.source.implement", "rust.source.implement"],
+        "observation_validator_id": "forgeway.delivery.observation",
+        "payload_validator_ids": ["forgeway.stage.implementation/1"],
+        "target_binding": "result-package-and-exit-condition",
+        "default": { "kinds": ["source-assertion", "artifact-validation"], "outcomes": ["satisfied"] },
+        "overrides": { "native-commands-and-results-recorded": { "kinds": ["command-execution"], "outcomes": ["satisfied"] } }
+      },
+      "execution_kind": "capability",
+      "capability_resolution": {
+        "candidates": ["frontend.source.implement", "typescript.source.implement", "java.source.implement", "rust.source.implement"],
+        "selector": "task.surface"
+      },
+      "capability_request": "source.implement",
+      "support_capability_requests": [
+        "language-or-surface-specific-implementation-owner"
+      ],
+      "maximum_effect": "source-write",
+      "entry_conditions": [
+        "task-planning-complete",
+        "selected-capability-compatible-with-task",
+        "effective-scope-authorized"
+      ],
+      "exit_conditions": [
+        "authorized-source-diff-produced",
+        "task-acceptance-refs-mapped-to-changes",
+        "native-commands-and-results-recorded",
+        "result-package-fixed-to-attempt"
+      ],
+      "stop_states": [
+        "basis-conflict",
+        "scope-ambiguous",
+        "capability-unavailable",
+        "capability-ambiguous",
+        "confirmation-required",
+        "result-invalid",
+        "evidence-incomplete"
+      ],
+      "invalidation_triggers": [
+        "task-or-basis-changed",
+        "source-changed-outside-owned-attempt",
+        "generated-source-owner-changed",
+        "implementation-result-package-changed"
+      ]
+    },
+    {
+      "id": "verification",
+      "order": 7,
+      "contract_version": "1.3.0",
+      "workflow_ref": "workflows/08-verification.md",
+      "applicability": "required",
+      "input_from": "previous-terminal",
+      "exit_evidence": {
+        "producer_capabilities": ["forgeway.verification-plan-executor"],
+        "observation_validator_id": "forgeway.delivery.observation",
+        "payload_validator_ids": ["forgeway.stage.verification/1"],
+        "target_binding": "result-package-and-exit-condition",
+        "default": { "kinds": ["artifact-validation", "runtime-observation"], "outcomes": ["satisfied"] },
+        "overrides": { "required-checks-attempted-or-explicitly-blocked": { "kinds": ["command-execution"], "outcomes": ["satisfied"] } }
+      },
+      "execution_kind": "host",
+      "host_adapter": { "contract_id": "forgeway.verification-plan-executor", "contract_version": "1.0.0", "runtime_binding": "external-required", "implementation_status": "not-verified" },
+      "capability_request": "delivery.verify",
+      "support_capability_requests": [
+        "source.audit",
+        "browser.runtime.observe",
+        "client.runtime.operate"
+      ],
+      "maximum_effect": "runtime-operation",
+      "entry_conditions": [
+        "implementation-or-fixed-read-only-basis-available",
+        "required-evidence-matrix-resolved"
+      ],
+      "exit_conditions": [
+        "required-checks-attempted-or-explicitly-blocked",
+        "source-automated-artifact-and-runtime-axes-recorded-separately",
+        "evidence-bound-to-exact-basis-and-result-package",
+        "verification-gaps-and-rerun-scope-recorded"
+      ],
+      "stop_states": [
+        "basis-conflict",
+        "environment-blocked",
+        "capability-unavailable",
+        "capability-ambiguous",
+        "result-invalid",
+        "evidence-incomplete"
+      ],
+      "invalidation_triggers": [
+        "implementation-result-package-changed",
+        "verification-command-or-environment-changed",
+        "required-evidence-policy-changed",
+        "runtime-target-identity-changed"
+      ]
+    },
+    {
+      "id": "review",
+      "order": 8,
+      "contract_version": "1.2.0",
+      "workflow_ref": "workflows/09-review.md",
+      "applicability": "required",
+      "input_from": "previous-terminal",
+      "exit_evidence": { "producer_capabilities": ["repository.change.review"], "observation_validator_id": "forgeway.delivery.observation", "payload_validator_ids": ["forgeway.stage.review/1"], "target_binding": "result-package-and-exit-condition", "default": { "kinds": ["review-finding"], "outcomes": ["satisfied"] } },
+      "execution_kind": "capability",
+      "capability_resolution": { "candidates": ["repository.change.review"] },
+      "capability_request": "repository.change.review",
+      "support_capability_requests": [
+        "language-or-surface-specific-audit-owner"
+      ],
+      "maximum_effect": "read-only",
+      "entry_conditions": [
+        "verification-complete-or-explicitly-partial",
+        "review-basis-and-result-package-fixed"
+      ],
+      "exit_conditions": [
+        "independent-review-result-recorded",
+        "findings-attributed-to-fixed-basis-and-owner",
+        "remaining-risks-and-not-verified-boundaries-recorded",
+        "pass-partial-gap-or-change-required-verdict-recorded"
+      ],
+      "stop_states": [
+        "basis-conflict",
+        "input-not-ready",
+        "capability-unavailable",
+        "capability-ambiguous",
+        "result-invalid",
+        "evidence-incomplete"
+      ],
+      "invalidation_triggers": [
+        "reviewed-diff-or-result-package-changed",
+        "verification-evidence-changed",
+        "review-policy-or-scope-changed"
+      ]
+    },
+    {
+      "id": "delivery",
+      "order": 9,
+      "contract_version": "1.2.0",
+      "workflow_ref": "workflows/10-delivery.md",
+      "applicability": "required",
+      "input_from": "previous-terminal",
+      "exit_evidence": { "producer_capabilities": ["repository.git.deliver"], "observation_validator_id": "forgeway.delivery.observation", "payload_validator_ids": ["forgeway.stage.delivery/1"], "target_binding": "result-package-and-exit-condition", "default": { "kinds": ["artifact-validation"], "outcomes": ["satisfied"] } },
+      "execution_kind": "capability",
+      "capability_resolution": {
+        "candidates": ["repository.git.deliver"],
+        "conditional_adapters": [
+          { "action": "deployment", "contract_id": "forgeway.host.deployment", "contract_version": "1.0.0", "runtime_binding": "external-required", "implementation_status": "not-verified" },
+          { "action": "production-readback", "contract_id": "forgeway.host.production-readback", "contract_version": "1.0.0", "runtime_binding": "external-required", "implementation_status": "not-verified" }
+        ]
+      },
+      "receipt_policy": "required-on-success",
+      "capability_request": "delivery.execute",
+      "support_capability_requests": [
+        "repository.git.deliver",
+        "deployment.execute",
+        "production.readback"
+      ],
+      "maximum_effect": "delivery-write",
+      "entry_conditions": [
+        "review-terminal-and-required-gates-satisfied",
+        "each-requested-delivery-action-separately-authorized",
+        "history-strategy-resolved-when-applicable"
+      ],
+      "exit_conditions": [
+        "each-authorized-delivery-action-has-receipt-or-explicit-failure",
+        "remote-or-runtime-readback-recorded-when-required",
+        "unexecuted-actions-remain-not-verified",
+        "delivered-basis-fixed-for-close"
+      ],
+      "stop_states": [
+        "delivery-authorization-required",
+        "strategy-unresolved",
+        "basis-conflict",
+        "environment-blocked",
+        "capability-unavailable",
+        "capability-ambiguous",
+        "result-invalid",
+        "evidence-incomplete"
+      ],
+      "invalidation_triggers": [
+        "reviewed-basis-changed",
+        "delivery-target-or-history-strategy-changed",
+        "receipt-readback-mismatch",
+        "deployment-or-production-target-changed"
+      ]
+    },
+    {
+      "id": "close",
+      "order": 10,
+      "contract_version": "1.2.0",
+      "workflow_ref": "workflows/11-close.md",
+      "applicability": "required",
+      "input_from": "previous-terminal",
+      "exit_evidence": { "producer_capabilities": ["forgeway.kernel.close"], "observation_validator_id": "forgeway.delivery.observation", "payload_validator_ids": ["forgeway.stage.close/1"], "target_binding": "result-package-and-exit-condition", "default": { "kinds": ["artifact-validation", "review-finding"], "outcomes": ["satisfied"] } },
+      "execution_kind": "kernel",
+      "capability_request": "workflow.close.project",
+      "support_capability_requests": [],
+      "maximum_effect": "read-only",
+      "entry_conditions": [
+        "goal-terminal-stage-reached",
+        "required-gate-projection-current"
+      ],
+      "exit_conditions": [
+        "pass-fail-blocked-gap-or-change-verdict-recorded",
+        "all-not-verified-boundaries-visible",
+        "recovery-or-follow-up-owner-recorded",
+        "final-basis-artifact-and-receipt-refs-fixed"
+      ],
+      "stop_states": [
+        "input-not-ready",
+        "basis-conflict",
+        "evidence-incomplete",
+        "result-invalid"
+      ],
+      "invalidation_triggers": [
+        "any-required-stage-or-gate-invalidated",
+        "final-basis-or-receipt-changed",
+        "critical-gap-reopened"
+      ]
+    }
+  ]
+}

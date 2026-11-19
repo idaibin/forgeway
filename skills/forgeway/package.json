@@ -1,0 +1,62 @@
+{
+  "name": "forgeway",
+  "version": "0.1.0",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/idaibin/forgeway.git"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "packageManager": "npm@12.0.1",
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "24.22.1",
+      "onFail": "download"
+    }
+  },
+  "bin": {
+    "forgeway": "tooling/forgeway.mjs"
+  },
+  "files": [
+    "SKILL.md",
+    "package-lock.json",
+    "agents/",
+    "contracts/",
+    "handbook/",
+    "product/foundation.md",
+    "product/project-assets.md",
+    "product/delivery-workspace.md",
+    "product/product-ui-source-pipeline.md",
+    "product/features/",
+    "runtime/",
+    "scripts/",
+    "standards/",
+    "templates/",
+    "tooling/",
+    "workflows/"
+  ],
+  "scripts": {
+    "install:skill": "node scripts/install-skill.mjs"
+  },
+  "dependencies": {
+    "@primer/primitives": "11.10.0",
+    "@primer/react": "38.35.1",
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "react-is": "19.2.8",
+    "yaml": "2.9.0",
+    "playwright-core": "1.62.1"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.13.0",
+    "@playwright/test": "1.62.1",
+    "typescript": "5.9.3",
+    "vite": "8.2.1"
+  }
+}

@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:forgeway:receipt:v1",
+  "title": "Forgeway delivery or deployment receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "receipt_id",
+    "receipt_type",
+    "run_id",
+    "attempt_id",
+    "result_package_id",
+    "target",
+    "authorization",
+    "readback",
+    "outcome",
+    "created_at"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "receipt_id": { "type": "string", "minLength": 1, "pattern": "^receipt:[A-Za-z0-9._:-]+$" },
+    "receipt_type": { "enum": ["delivery", "deployment"] },
+    "run_id": { "type": "string", "minLength": 1, "pattern": "^run:[A-Za-z0-9._:-]+$" },
+    "attempt_id": { "type": "string", "minLength": 1, "pattern": "^attempt:[A-Za-z0-9._:-]+$" },
+    "result_package_id": { "type": "string", "minLength": 8, "pattern": "^pkg:[A-Za-z0-9._:-]+$" },
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "identity"],
+      "properties": {
+        "kind": { "enum": ["git-remote", "deployment-target"] },
+        "identity": { "type": "string", "minLength": 1 },
+        "commit_sha": { "type": "string", "pattern": "^[0-9a-f]{40}$" }
+      }
+    },
+    "authorization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["granted", "actor"],
+      "properties": {
+        "granted": { "type": "boolean" },
+        "actor": { "type": "string", "minLength": 1 },
+        "reference": { "type": "string", "minLength": 1 }
+      }
+    },
+    "readback": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status"],
+      "properties": {
+        "status": { "enum": ["confirmed", "negative", "not-verified"] },
+        "observed_at": { "type": "string", "format": "date-time" },
+        "identity": { "type": "string", "minLength": 1 },
+        "commit_sha": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "ref": { "type": "string", "minLength": 1 },
+        "deployment_id": { "type": "string", "minLength": 1 },
+        "environment": { "type": "string", "minLength": 1 },
+        "result_package_id": { "type": "string", "minLength": 8, "pattern": "^pkg:[A-Za-z0-9._:-]+$" },
+        "details": { "type": "object", "additionalProperties": true }
+      }
+    },
+    "outcome": {
+      "enum": ["satisfied", "unsatisfied", "not-verified"]
+    },
+    "created_at": { "type": "string", "format": "date-time" }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "receipt_type": { "const": "delivery" } }, "required": ["receipt_type"] },
+      "then": { "properties": { "target": { "properties": { "kind": { "const": "git-remote" } }, "required": ["kind"] } } }
+    },
+    {
+      "if": { "properties": { "receipt_type": { "const": "deployment" } }, "required": ["receipt_type"] },
+      "then": { "properties": { "target": { "properties": { "kind": { "const": "deployment-target" } }, "required": ["kind"] } } }
+    },
+    {
+      "if": { "properties": { "outcome": { "const": "satisfied" } }, "required": ["outcome"] },
+      "then": {
+        "properties": {
+          "authorization": { "properties": { "granted": { "const": true } }, "required": ["granted"] },
+          "readback": { "properties": { "status": { "const": "confirmed" } }, "required": ["status"] }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "readback": { "properties": { "status": { "const": "confirmed" } }, "required": ["status"] } }, "required": ["readback"] },
+      "then": {
+        "properties": {
+          "authorization": { "properties": { "granted": { "const": true } }, "required": ["granted"] },
+          "readback": {
+            "required": ["identity", "result_package_id"],
+            "properties": {
+              "identity": { "type": "string", "minLength": 1 },
+              "result_package_id": { "type": "string", "minLength": 8, "pattern": "^pkg:[A-Za-z0-9._:-]+$" }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

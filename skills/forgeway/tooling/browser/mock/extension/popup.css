@@ -1,0 +1,30 @@
+:root{font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#20332f;background:#fff}
+*{box-sizing:border-box}
+body{width:360px;max-height:480px;overflow:auto;margin:0;padding:16px}
+header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding-bottom:14px}
+h1{font-size:16px;font-weight:650;letter-spacing:-.3px;margin:0}
+header p{font-size:12px;color:#697973;margin:0}
+.project{display:flex;align-items:center;justify-content:space-between;gap:16px;border-top:1px solid #e6ece9;padding:14px 0 2px}
+.project+.project{margin-top:12px}
+.project>div{min-width:0}
+.name{font-size:14px;font-weight:600;overflow-wrap:anywhere}
+.status{font-size:12px;color:#697973;margin-top:4px}
+.active{color:#087969}
+.toggle{display:flex;align-items:center;flex-shrink:0;min-height:32px;padding:4px 0 4px 8px;cursor:pointer}
+.toggle input{appearance:none;position:relative;width:36px;height:22px;border:1px solid #b6c3bc;border-radius:999px;margin:0;background:#cbd5d0;cursor:pointer;transition:background-color .15s,border-color .15s}
+.toggle input::before{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform .15s}
+.toggle input:checked{background:#087969;border-color:#087969}
+.toggle input:checked::before{transform:translateX(14px)}
+.toggle input:enabled:hover{border-color:#087969}
+.toggle input:checked:enabled:hover{background:#086859}
+.toggle input:focus-visible{outline:3px solid #70bfb0;outline-offset:3px}
+.toggle:has(input:disabled){cursor:default}
+.toggle input:disabled{background:#e8eeeb;border-color:#d8e0dc;cursor:default}
+.toggle input:checked:disabled{background:#9fc4b9;border-color:#9fc4b9}
+#notice{font-size:12px;color:#697973;overflow-wrap:anywhere;margin:12px 0 0}
+#notice:empty{display:none}
+#notice.error{color:#9d3325}
+@media(prefers-reduced-motion:reduce){.toggle input,.toggle input::before{transition:none}}
+
+footer{border-top:1px solid #e6ece9;margin-top:14px;padding-top:10px}
+.preference{display:flex;align-items:center;justify-content:space-between;gap:16px;font-size:12px;color:#697973;cursor:pointer}

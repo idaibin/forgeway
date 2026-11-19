@@ -1,0 +1,43 @@
+{
+  "schema_version": "forgeway-http-api-profile/1",
+  "profile_id": "forgeway.default-http-api",
+  "profile_version": "1.0.0",
+  "lifecycle": {
+    "owner": "Forgeway standards maintainers",
+    "producer": "Forgeway source repository",
+    "non_llm_consumer": "forgeway standards resolve",
+    "validator": "tooling/http-api-profile.mjs",
+    "drift_policy": "Resolve against this exact file hash and bind every override to profile_version.",
+    "retirement_rule": "Retire only through a successor profile version; existing projects retain their recorded version."
+  },
+  "convention": {
+    "response": {
+      "code_field": "code",
+      "message_field": "message",
+      "data_field": "data",
+      "success_code": 0
+    },
+    "pagination": {
+      "items_field": "items",
+      "total_field": "total",
+      "page_field": "page",
+      "page_size_field": "pageSize",
+      "default_page_size": 20,
+      "max_page_size": 100
+    },
+    "auth": {
+      "mode": "token",
+      "authorization_header": "Authorization",
+      "token_scheme": "Bearer",
+      "routes": {
+        "login": "/auth/login",
+        "me": "/auth/me",
+        "logout": "/auth/logout",
+        "refresh": null
+      }
+    },
+    "request_id": {
+      "response_header": "X-Request-Id"
+    }
+  }
+}

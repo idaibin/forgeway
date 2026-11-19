@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:forgeway:portfolio-result:v1",
+  "title": "Cross-project validation result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "campaign_id", "system_commit_sha", "portfolio_sha256", "generated_at", "expected_projects", "required_profiles", "required_gates", "verdict", "projects"],
+  "properties": {
+    "schema_version": { "$ref": "urn:forgeway:common:v1#/$defs/schemaVersion" },
+    "campaign_id": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+    "system_commit_sha": { "$ref": "urn:forgeway:common:v1#/$defs/commitSha" },
+    "portfolio_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "expected_projects": { "type": "integer", "minimum": 1, "maximum": 100 },
+    "required_profiles": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "enum": ["java-fullstack", "rust-fullstack", "custom"] } },
+    "required_gates": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "urn:forgeway:common:v1#/$defs/gate" } },
+    "verdict": { "enum": ["Pass", "Fail", "Partial"] },
+    "projects": { "type": "array", "minItems": 1 }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "schema_version": { "const": "1.0" } }, "required": ["schema_version"] },
+      "then": { "properties": { "projects": { "type": "array", "items": { "$ref": "#/$defs/projectResultV1" } } } }
+    },
+    {
+      "if": { "properties": { "schema_version": { "const": "1.1" } }, "required": ["schema_version"] },
+      "then": { "properties": { "projects": { "type": "array", "items": { "$ref": "#/$defs/projectResultV1_1" } } } }
+    }
+  ],
+  "$defs": {
+    "projectResultV1": {
+      "type": "object", "additionalProperties": false,
+      "required": ["project_id", "commit_sha", "mode", "profile", "requirement_ids", "gates", "evidence_ids", "gap_ids", "verdict"],
+      "properties": {
+        "project_id": { "$ref": "urn:forgeway:common:v1#/$defs/repositoryId" },
+        "commit_sha": { "$ref": "urn:forgeway:common:v1#/$defs/commitSha" },
+        "mode": { "enum": ["adoption", "delivery"] },
+        "profile": { "enum": ["java-fullstack", "rust-fullstack", "custom"] },
+        "requirement_ids": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "urn:forgeway:common:v1#/$defs/requirementId" } },
+        "gates": { "$ref": "urn:forgeway:common:v1#/$defs/gateMapV1" },
+        "evidence_ids": { "type": "array", "uniqueItems": true, "items": { "$ref": "urn:forgeway:common:v1#/$defs/evidenceId" } },
+        "gap_ids": { "type": "array", "uniqueItems": true, "items": { "$ref": "urn:forgeway:common:v1#/$defs/gapId" } },
+        "verdict": { "enum": ["Pass", "Fail", "Blocked"] },
+        "next_action": { "$ref": "urn:forgeway:common:v1#/$defs/nextActionV1" }
+      },
+      "allOf": [{ "if": { "properties": { "verdict": { "enum": ["Fail", "Blocked"] } }, "required": ["verdict"] }, "then": { "properties": { "next_action": {} }, "required": ["next_action"] } }]
+    },
+    "resultRepositoryV1_1": {
+      "type": "object", "additionalProperties": false, "required": ["id", "commit_sha"],
+      "properties": { "id": { "$ref": "urn:forgeway:common:v1#/$defs/repositoryId" }, "commit_sha": { "$ref": "urn:forgeway:common:v1#/$defs/commitSha" } }
+    },
+    "componentResultV1_1": {
+      "type": "object", "additionalProperties": false,
+      "required": ["component_id", "repository_id", "required_gates", "gates", "gate_evidence"],
+      "properties": {
+        "component_id": { "$ref": "urn:forgeway:common:v1#/$defs/componentId" },
+        "repository_id": { "$ref": "urn:forgeway:common:v1#/$defs/repositoryId" },
+        "required_gates": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "urn:forgeway:common:v1#/$defs/gate" } },
+        "gates": { "$ref": "urn:forgeway:common:v1#/$defs/gateMapV1_1" },
+        "gate_evidence": { "$ref": "urn:forgeway:common:v1#/$defs/gateEvidence" }
+      }
+    },
+    "projectResultV1_1": {
+      "type": "object", "additionalProperties": false,
+      "required": ["project_id", "topology", "repositories", "components", "mode", "profile", "manifest_source", "requirement_ids", "gates", "gate_evidence", "gap_ids", "verdict"],
+      "properties": {
+        "project_id": { "$ref": "urn:forgeway:common:v1#/$defs/repositoryId" },
+        "topology": { "enum": ["monolith", "monorepo", "polyrepo"] },
+        "repositories": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/resultRepositoryV1_1" } },
+        "components": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/componentResultV1_1" } },
+        "mode": { "enum": ["adoption", "delivery"] },
+        "profile": { "enum": ["java-fullstack", "rust-fullstack", "custom"] },
+        "manifest_source": { "enum": ["campaign", "project"] },
+        "requirement_ids": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "urn:forgeway:common:v1#/$defs/requirementId" } },
+        "gates": { "$ref": "urn:forgeway:common:v1#/$defs/gateMapV1_1" },
+        "gate_evidence": { "$ref": "urn:forgeway:common:v1#/$defs/gateEvidence" },
+        "gap_ids": { "type": "array", "uniqueItems": true, "items": { "$ref": "urn:forgeway:common:v1#/$defs/gapId" } },
+        "verdict": { "enum": ["Pass", "Fail", "Partial", "Blocked"] },
+        "next_action": { "$ref": "urn:forgeway:common:v1#/$defs/nextActionV1_1" }
+      },
+      "allOf": [
+        { "if": { "properties": { "verdict": { "enum": ["Fail", "Partial", "Blocked"] } }, "required": ["verdict"] }, "then": { "properties": { "next_action": {} }, "required": ["next_action"] } },
+        {
+          "if": { "properties": { "verdict": { "const": "Blocked" } }, "required": ["verdict"] },
+          "then": {
+            "properties": {
+              "next_action": {
+                "type": "object",
+                "required": ["reason_code"],
+                "properties": { "reason_code": { "const": "ENVIRONMENT_BLOCKED" } }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,57 @@
+schema_version: "1.1"
+id: REQ-FORGEWAY-001
+title: Validate a portable host-adaptable Forgeway workflow
+owner:
+  id: system-owner
+  role: product
+basis:
+  - repository_id: system
+    commit_sha: a8b69061c8230bea1625f3b9e554c6aa8b304cfc
+state: Ready
+product_ref: product/features/REQ-FORGEWAY-001-portable-workflow-validation.md
+acceptance_criteria:
+  - A run without explicit external review or evaluation emits no reviewer, model, external CLI or project-history literals.
+  - Repository identity, path, language and framework never select an evaluation implicitly.
+  - The trigger Skill has no fixed Skill root, package roster, version, digest, executable or discovery command.
+  - A missing capability returns capability-unavailable with an install-or-enable prompt and no guessed package or fallback.
+  - Generic templates contain only synthetic identities, a neutral profile and project-native command placeholders.
+  - Real project, account, model, CLI and external-review evidence is excluded from controlled source.
+  - Portability validation rejects target, reviewer, model, CLI, host-path and fixed-Skill bindings in portable surfaces.
+  - Plugin, Skill, Schema, semantic, link and synthetic-fixture checks pass together.
+traces:
+  data: { applicable: false, reason: The system stores no runtime project data. }
+  interface:
+    applicable: true
+    artifact:
+      kind: interface
+      path: contracts/portfolio.schema.json
+      component_id: system
+      owner: { id: system-owner, role: contract }
+      status: Declared
+  ui: { applicable: false, reason: The system has no user interface in this slice. }
+  implementation:
+    applicable: true
+    artifact:
+      kind: implementation
+      path: tooling/validate.mjs
+      component_id: system
+      owner: { id: system-owner, role: source }
+      status: Declared
+  test:
+    applicable: true
+    artifact:
+      kind: test
+      path: fixtures
+      component_id: system
+      owner: { id: system-owner, role: verification }
+      status: Declared
+  evidence:
+    applicable: true
+    artifact:
+      kind: evidence
+      path: scripts/validate-forgeway.mjs
+      component_id: system
+      owner: { id: system-owner, role: verification }
+      status: Declared
+required_gates: [source, automated, artifact, independent-review]
+gap_ids: [G-FORGEWAY-001]

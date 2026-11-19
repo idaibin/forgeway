@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:forgeway:evidence:v1",
+  "title": "Verification evidence record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "id", "requirement_ids", "owner", "basis", "category", "status", "started_at", "finished_at", "result", "limitations"],
+  "properties": {
+    "schema_version": { "$ref": "urn:forgeway:common:v1#/$defs/schemaVersion" },
+    "id": { "$ref": "urn:forgeway:common:v1#/$defs/evidenceId" },
+    "requirement_ids": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "urn:forgeway:common:v1#/$defs/requirementId" } },
+    "task_ids": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "urn:forgeway:common:v1#/$defs/taskId" } },
+    "change_ids": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "urn:forgeway:common:v1#/$defs/changeId" } },
+    "owner": { "$ref": "urn:forgeway:common:v1#/$defs/owner" },
+    "basis": {},
+    "category": { "enum": ["source", "automated", "artifact", "runtime", "review"] },
+    "status": { "$ref": "urn:forgeway:common:v1#/$defs/evidenceStatus" },
+    "command": {},
+    "environment": { "type": "string", "minLength": 2 },
+    "started_at": { "type": "string", "format": "date-time" },
+    "finished_at": { "type": "string", "format": "date-time" },
+    "result": { "enum": ["pass", "fail", "blocked", "not-run"] },
+    "exit_code": { "type": "integer" },
+    "artifact_locator": { "$ref": "urn:forgeway:common:v1#/$defs/relativePath" },
+    "artifact_type": { "type": "string", "minLength": 2 },
+    "artifact_identity": { "type": "string", "minLength": 2 },
+    "artifact_version": { "type": "string", "minLength": 1 },
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "log_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "identity_category": { "type": "string", "minLength": 2 },
+    "observable_outcome": { "type": "string", "minLength": 5 },
+    "limitations": { "type": "array", "items": { "type": "string", "minLength": 3 } },
+    "gap_ids": { "type": "array", "uniqueItems": true, "items": { "$ref": "urn:forgeway:common:v1#/$defs/gapId" } },
+    "next_action": {}
+  },
+  "anyOf": [
+    { "properties": { "task_ids": {} }, "required": ["task_ids"] },
+    { "properties": { "change_ids": {} }, "required": ["change_ids"] }
+  ],
+  "allOf": [
+    {
+      "if": { "properties": { "schema_version": { "const": "1.0" } }, "required": ["schema_version"] },
+      "then": {
+        "properties": {
+          "basis": { "type": "object", "additionalProperties": false, "required": ["repository", "commit_sha", "worktree_state"], "properties": { "repository": { "type": "string", "minLength": 2 }, "commit_sha": { "$ref": "urn:forgeway:common:v1#/$defs/commitSha" }, "worktree_state": { "enum": ["clean", "derived-package"] } } },
+          "command": { "$ref": "urn:forgeway:common:v1#/$defs/command" },
+          "next_action": { "$ref": "urn:forgeway:common:v1#/$defs/nextActionV1" }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "schema_version": { "const": "1.1" } }, "required": ["schema_version"] },
+      "then": {
+        "properties": {
+          "basis": { "type": "array", "minItems": 1, "items": { "allOf": [{ "$ref": "urn:forgeway:common:v1#/$defs/basisRef" }, { "type": "object", "properties": { "worktree_state": {} }, "required": ["worktree_state"] }] } },
+          "command": { "$ref": "urn:forgeway:common:v1#/$defs/scopedCommand" },
+          "next_action": { "$ref": "urn:forgeway:common:v1#/$defs/nextActionV1_1" }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "category": { "const": "automated" }, "result": { "enum": ["pass", "fail"] } }, "required": ["category", "result"] },
+      "then": { "properties": { "command": {}, "environment": {}, "log_sha256": {}, "exit_code": {} }, "required": ["command", "environment", "log_sha256", "exit_code"] }
+    },
+    {
+      "if": { "properties": { "category": { "const": "artifact" }, "result": { "enum": ["pass", "fail"] } }, "required": ["category", "result"] },
+      "then": { "properties": { "artifact_locator": {}, "artifact_type": {}, "artifact_identity": {}, "artifact_version": {}, "sha256": {} }, "required": ["artifact_locator", "artifact_type", "artifact_identity", "artifact_version", "sha256"] }
+    },
+    {
+      "if": { "properties": { "category": { "const": "runtime" }, "result": { "enum": ["pass", "fail"] } }, "required": ["category", "result"] },
+      "then": { "properties": { "environment": {}, "artifact_locator": {}, "identity_category": {}, "observable_outcome": {} }, "required": ["environment", "artifact_locator", "identity_category", "observable_outcome"] }
+    },
+    {
+      "if": { "properties": { "result": { "enum": ["fail", "blocked", "not-run"] } }, "required": ["result"] },
+      "then": { "properties": { "next_action": {} }, "required": ["next_action"] }
+    },
+    {
+      "if": { "properties": { "schema_version": { "const": "1.1" }, "result": { "const": "blocked" } }, "required": ["schema_version", "result"] },
+      "then": { "properties": { "next_action": { "type": "object", "required": ["reason_code"], "properties": { "reason_code": { "const": "ENVIRONMENT_BLOCKED" } } } } }
+    }
+  ]
+}

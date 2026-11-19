@@ -1,0 +1,45 @@
+schema_version: "1.2"
+project_id: sample-project
+name: Sample Project
+topology: monorepo
+repositories:
+  - id: application
+    repository: example/sample-project
+    basis: { ref: main, commit_sha: 0123456789abcdef0123456789abcdef01234567 }
+components:
+  - id: backend
+    repository_id: application
+    path: backend
+    required_gates: [source, automated, artifact, runtime, independent-review]
+  - id: web
+    repository_id: application
+    path: web
+    required_gates: [source, automated, artifact, runtime, independent-review]
+owners:
+  - { id: product-owner, role: product }
+  - { id: source-owner, role: source }
+profile: custom
+artifacts:
+  - kind: product
+    path: delivery/product/foundation.md
+    component_id: backend
+    owner: { id: product-owner, role: product }
+    status: Not verified
+  - kind: ui
+    path: delivery/ui/example.md
+    component_id: web
+    owner: { id: source-owner, role: ui }
+    status: Not verified
+commands:
+  - id: backend-check
+    component_id: backend
+    cwd: backend
+    argv: ["project-native-backend-check"]
+    timeout_seconds: 1800
+  - id: web-check
+    component_id: web
+    cwd: web
+    argv: ["project-native-ui-check"]
+    timeout_seconds: 1800
+runtime_requirements:
+  - Database and browser access are supplied by the runtime owner.

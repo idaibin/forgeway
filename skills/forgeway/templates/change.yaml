@@ -1,0 +1,10 @@
+schema_version: "1.1"
+id: CHG-SAMPLE-001
+owner: { id: decision-owner, role: change }
+requirement_ids: [REQ-SAMPLE-001]
+reason: A confirmed product decision changes observable behavior.
+previous_basis:
+  - { repository_id: application, commit_sha: 0123456789abcdef0123456789abcdef01234567 }
+impact: [product, interface, ui, test]
+decision: Update the owning artifacts and regenerate derived clients.
+revalidation_gates: [source, automated, artifact, runtime, independent-review]

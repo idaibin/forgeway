@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:forgeway:attempt:v1",
+  "title": "Forgeway immutable run attempt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "attempt_id", "run_id", "attempt_number", "adapter", "action", "events", "exit", "status", "result_package_id", "created_at"],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "attempt_id": { "type": "string", "pattern": "^attempt:[A-Za-z0-9._:-]+$" },
+    "run_id": { "type": "string", "pattern": "^run:[A-Za-z0-9._:-]+$" },
+    "attempt_number": { "type": "integer", "minimum": 1 },
+    "adapter": { "type": "object" },
+    "action": { "type": "object" },
+    "events": { "type": "array" },
+    "exit": { "type": "object" },
+    "status": { "enum": ["started", "succeeded", "failed", "blocked", "cancelled"] },
+    "result_package_id": { "type": ["string", "null"], "pattern": "^pkg:[A-Za-z0-9._:-]+$" },
+    "created_at": { "type": "string", "format": "date-time" }
+  }
+}

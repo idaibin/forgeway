@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Forgeway HTTP 验收示例</title></head>
+<body>
+<main>
+  <h1>Forgeway HTTP 验收示例</h1>
+  <p>仅限本机测试，不用于生产。示例账号 demo，密码 demo-only。</p>
+  <form id="login">
+    <p><label>用户名 <input name="username" autocomplete="username" required value="demo"></label></p>
+    <p><label>密码 <input name="password" type="password" autocomplete="current-password" required></label></p>
+    <button type="submit">登录</button>
+  </form>
+  <p id="status" role="status" aria-live="polite">未登录</p>
+  <section id="session" hidden aria-label="当前用户与列表">
+    <p id="user"></p>
+    <form id="search"><label>搜索 <input name="query" type="search"></label><button type="submit">搜索列表</button></form>
+    <ul id="items"></ul><p id="page"></p>
+    <button id="previous" type="button">上一页</button>
+    <button id="next" type="button">下一页</button>
+    <button id="logout" type="button">退出登录</button>
+  </section>
+  <p>请求标识：<output id="request-id">未读取</output></p>
+</main>
+<script src="/client.js" type="module"></script>
+</body>
+</html>

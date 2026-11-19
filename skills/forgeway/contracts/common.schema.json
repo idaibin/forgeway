@@ -1,0 +1,233 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:forgeway:common:v1",
+  "title": "Forgeway common definitions",
+  "$defs": {
+    "schemaVersion": { "enum": ["1.0", "1.1"] },
+    "owner": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "role"],
+      "properties": {
+        "id": { "type": "string", "minLength": 2, "pattern": "^(?!\\{\\{|TBD$|TODO$).+" },
+        "role": { "type": "string", "minLength": 2 }
+      }
+    },
+    "relativePath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?!~)(?![A-Za-z]:[\\\\/])(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\).+"
+    },
+    "commitSha": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "repositoryId": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+    "componentId": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+    "requirementId": { "type": "string", "pattern": "^REQ-[A-Z][A-Z0-9]*-[0-9]{3}$" },
+    "taskId": { "type": "string", "pattern": "^TASK-[A-Z][A-Z0-9]*-[0-9]{3}$" },
+    "changeId": { "type": "string", "pattern": "^CHG-[A-Z][A-Z0-9]*-[0-9]{3}$" },
+    "gapId": { "type": "string", "pattern": "^G-[A-Z][A-Z0-9]*-[0-9]{3}$" },
+    "evidenceId": { "type": "string", "pattern": "^EVD-[A-Z][A-Z0-9]*-[0-9]{3}$" },
+    "evidenceStatus": {
+      "enum": ["Declared", "Source-resolved", "Automated", "Artifact-resolved", "Runtime-resolved", "Gap", "Not verified"]
+    },
+    "gate": { "enum": ["source", "automated", "artifact", "runtime", "independent-review"] },
+    "gateResultV1": { "enum": ["pass", "fail", "blocked", "not-run", "not-applicable"] },
+    "gateResultV1_1": { "enum": ["pass", "fail", "partial", "blocked", "not-run", "not-applicable"] },
+    "gateMapV1": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "automated", "artifact", "runtime", "independent-review"],
+      "properties": {
+        "source": { "$ref": "urn:forgeway:common:v1#/$defs/gateResultV1" },
+        "automated": { "$ref": "urn:forgeway:common:v1#/$defs/gateResultV1" },
+        "artifact": { "$ref": "urn:forgeway:common:v1#/$defs/gateResultV1" },
+        "runtime": { "$ref": "urn:forgeway:common:v1#/$defs/gateResultV1" },
+        "independent-review": { "$ref": "urn:forgeway:common:v1#/$defs/gateResultV1" }
+      }
+    },
+    "gateMapV1_1": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "automated", "artifact", "runtime", "independent-review"],
+      "properties": {
+        "source": { "$ref": "urn:forgeway:common:v1#/$defs/gateResultV1_1" },
+        "automated": { "$ref": "urn:forgeway:common:v1#/$defs/gateResultV1_1" },
+        "artifact": { "$ref": "urn:forgeway:common:v1#/$defs/gateResultV1_1" },
+        "runtime": { "$ref": "urn:forgeway:common:v1#/$defs/gateResultV1_1" },
+        "independent-review": { "$ref": "urn:forgeway:common:v1#/$defs/gateResultV1_1" }
+      }
+    },
+    "gateEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "automated", "artifact", "runtime", "independent-review"],
+      "properties": {
+        "source": { "type": "array", "uniqueItems": true, "items": { "$ref": "urn:forgeway:common:v1#/$defs/evidenceId" } },
+        "automated": { "type": "array", "uniqueItems": true, "items": { "$ref": "urn:forgeway:common:v1#/$defs/evidenceId" } },
+        "artifact": { "type": "array", "uniqueItems": true, "items": { "$ref": "urn:forgeway:common:v1#/$defs/evidenceId" } },
+        "runtime": { "type": "array", "uniqueItems": true, "items": { "$ref": "urn:forgeway:common:v1#/$defs/evidenceId" } },
+        "independent-review": { "type": "array", "uniqueItems": true, "items": { "$ref": "urn:forgeway:common:v1#/$defs/evidenceId" } }
+      }
+    },
+    "basisRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repository_id", "commit_sha"],
+      "properties": {
+        "repository_id": { "$ref": "urn:forgeway:common:v1#/$defs/repositoryId" },
+        "commit_sha": { "$ref": "urn:forgeway:common:v1#/$defs/commitSha" },
+        "worktree_state": { "enum": ["clean", "derived-package"] }
+      }
+    },
+    "repositoryRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "repository", "basis"],
+      "properties": {
+        "id": { "$ref": "urn:forgeway:common:v1#/$defs/repositoryId" },
+        "repository": { "type": "string", "minLength": 2 },
+        "basis": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["ref", "commit_sha"],
+          "properties": {
+            "ref": { "type": "string", "minLength": 1 },
+            "commit_sha": { "$ref": "urn:forgeway:common:v1#/$defs/commitSha" }
+          }
+        }
+      }
+    },
+    "componentRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "repository_id", "path", "required_gates"],
+      "properties": {
+        "id": { "$ref": "urn:forgeway:common:v1#/$defs/componentId" },
+        "repository_id": { "$ref": "urn:forgeway:common:v1#/$defs/repositoryId" },
+        "path": { "$ref": "urn:forgeway:common:v1#/$defs/relativePath" },
+        "required_gates": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "urn:forgeway:common:v1#/$defs/gate" } }
+      }
+    },
+    "scopeRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["component_id", "path"],
+      "properties": {
+        "component_id": { "$ref": "urn:forgeway:common:v1#/$defs/componentId" },
+        "path": { "$ref": "urn:forgeway:common:v1#/$defs/relativePath" }
+      }
+    },
+    "artifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "path", "owner", "status"],
+      "properties": {
+        "kind": { "enum": ["product", "requirement", "domain", "data", "interface", "ui", "task", "change", "implementation", "test", "evidence", "decision", "deployment"] },
+        "path": { "$ref": "urn:forgeway:common:v1#/$defs/relativePath" },
+        "symbol": { "type": "string", "minLength": 1 },
+        "owner": { "$ref": "urn:forgeway:common:v1#/$defs/owner" },
+        "status": { "$ref": "urn:forgeway:common:v1#/$defs/evidenceStatus" }
+      }
+    },
+    "scopedArtifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "path", "component_id", "owner", "status"],
+      "properties": {
+        "kind": { "enum": ["product", "requirement", "domain", "data", "interface", "ui", "task", "change", "implementation", "test", "evidence", "decision", "deployment"] },
+        "path": { "$ref": "urn:forgeway:common:v1#/$defs/relativePath" },
+        "symbol": { "type": "string", "minLength": 1 },
+        "component_id": { "$ref": "urn:forgeway:common:v1#/$defs/componentId" },
+        "owner": { "$ref": "urn:forgeway:common:v1#/$defs/owner" },
+        "status": { "$ref": "urn:forgeway:common:v1#/$defs/evidenceStatus" }
+      }
+    },
+    "trace": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["applicable", "artifact"],
+          "properties": {
+            "applicable": { "const": true },
+            "artifact": { "$ref": "urn:forgeway:common:v1#/$defs/artifactRef" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["applicable", "reason"],
+          "properties": {
+            "applicable": { "const": false },
+            "reason": { "type": "string", "minLength": 5 }
+          }
+        }
+      ]
+    },
+    "scopedTrace": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["applicable", "artifact"],
+          "properties": {
+            "applicable": { "const": true },
+            "artifact": { "$ref": "urn:forgeway:common:v1#/$defs/scopedArtifactRef" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["applicable", "reason"],
+          "properties": {
+            "applicable": { "const": false },
+            "reason": { "type": "string", "minLength": 5 }
+          }
+        }
+      ]
+    },
+    "command": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "cwd", "argv", "timeout_seconds"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+        "cwd": { "$ref": "urn:forgeway:common:v1#/$defs/relativePath" },
+        "argv": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+        "timeout_seconds": { "type": "integer", "minimum": 1, "maximum": 7200 },
+        "env_keys": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" } }
+      }
+    },
+    "scopedCommand": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "component_id", "cwd", "argv", "timeout_seconds"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+        "component_id": { "$ref": "urn:forgeway:common:v1#/$defs/componentId" },
+        "cwd": { "$ref": "urn:forgeway:common:v1#/$defs/relativePath" },
+        "argv": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+        "timeout_seconds": { "type": "integer", "minimum": 1, "maximum": 7200 },
+        "env_keys": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" } }
+      }
+    },
+    "nextActionV1": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["owner", "action"],
+      "properties": {
+        "owner": { "$ref": "urn:forgeway:common:v1#/$defs/owner" },
+        "action": { "type": "string", "minLength": 5 }
+      }
+    },
+    "nextActionV1_1": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["owner", "action"],
+      "properties": {
+        "owner": { "$ref": "urn:forgeway:common:v1#/$defs/owner" },
+        "action": { "type": "string", "minLength": 5 },
+        "reason_code": { "enum": ["ENVIRONMENT_BLOCKED", "VALIDATION_FAILED", "INCOMPLETE_EVIDENCE"] }
+      }
+    }
+  }
+}

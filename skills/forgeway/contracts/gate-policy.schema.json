@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:forgeway:gate-policy:v1",
+  "title": "Forgeway versioned data-driven gate policy",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "policy_id", "version", "predicates", "failure_behavior"],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "policy_id": { "type": "string", "minLength": 1, "pattern": "^[A-Za-z][A-Za-z0-9._:-]*$" },
+    "version": { "type": "integer", "minimum": 1 },
+    "predicates": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": { "$ref": "#/$defs/predicate" }
+    },
+    "failure_behavior": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["missing", "negative", "stale"],
+      "properties": {
+        "missing": { "$ref": "#/$defs/state" },
+        "negative": { "$ref": "#/$defs/state" },
+        "stale": { "$ref": "#/$defs/state" }
+      }
+    }
+  },
+  "$defs": {
+    "state": {
+      "enum": ["satisfied", "unsatisfied", "not-verified", "not-applicable", "stale"]
+    },
+    "predicate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["applicable", "missing_state", "negative_state", "stale_state", "mode", "requirements"],
+      "properties": {
+        "applicable": { "type": "boolean" },
+        "missing_state": { "$ref": "#/$defs/state" },
+        "negative_state": { "$ref": "#/$defs/state" },
+        "stale_state": { "$ref": "#/$defs/state" },
+        "mode": { "enum": ["all", "any"] },
+        "requirements": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/requirement" }
+        }
+      }
+    },
+    "requirement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "min_count", "outcomes", "package_binding"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "kind": {
+          "enum": [
+            "source-assertion",
+            "command-execution",
+            "artifact-validation",
+            "runtime-observation",
+            "review-finding",
+            "delivery-receipt",
+            "deployment-receipt",
+            "production-probe"
+          ]
+        },
+        "environments": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "enum": ["local", "target-like", "deployed", "production"] }
+        },
+        "claim_refs": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "outcomes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "enum": ["satisfied", "unsatisfied", "not-verified", "not-applicable", "stale", "pass", "fail", "blocked", "error"] }
+        },
+        "min_count": { "type": "integer", "minimum": 1 },
+        "package_binding": { "enum": ["result", "input", "any"] }
+      }
+    }
+  }
+}

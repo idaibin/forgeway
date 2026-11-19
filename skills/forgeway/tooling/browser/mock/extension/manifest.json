@@ -1,0 +1,30 @@
+{
+  "manifest_version": 3,
+  "name": "Forgeway Mock · 项目验证",
+  "description": "Forgeway内置的项目、场景与单标签页接口Mock验证能力。",
+  "version": "1.0.0",
+  "minimum_chrome_version": "120",
+  "permissions": [
+    "storage",
+    "unlimitedStorage",
+    "scripting",
+    "tabs"
+  ],
+  "optional_host_permissions": [
+    "http://*/*",
+    "https://*/*"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_title": "打开 Tab Mock 管理器",
+    "default_popup": "popup.html"
+  },
+  "options_page": "manager.html",
+  "web_accessible_resources": [{
+    "resources": ["preview.html", "preview.js", "preview-data.mjs", "preview.css"],
+    "matches": ["http://*/*", "https://*/*"]
+  }]
+}

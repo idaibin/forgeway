@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:forgeway:change:v1",
+  "title": "Requirement change record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "id", "owner", "requirement_ids", "reason", "previous_basis", "impact", "decision", "revalidation_gates"],
+  "properties": {
+    "schema_version": { "$ref": "urn:forgeway:common:v1#/$defs/schemaVersion" },
+    "id": { "$ref": "urn:forgeway:common:v1#/$defs/changeId" },
+    "owner": { "$ref": "urn:forgeway:common:v1#/$defs/owner" },
+    "requirement_ids": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "urn:forgeway:common:v1#/$defs/requirementId" } },
+    "reason": { "type": "string", "minLength": 5 },
+    "previous_basis": {},
+    "impact": { "type": "array", "minItems": 1, "items": { "enum": ["product", "domain", "data", "interface", "ui", "implementation", "test", "artifact", "runtime", "rollout", "rollback"] } },
+    "decision": { "type": "string", "minLength": 5 },
+    "revalidation_gates": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "urn:forgeway:common:v1#/$defs/gate" } },
+    "supersedes": { "type": "array", "items": { "type": "string", "minLength": 3 } }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "schema_version": { "const": "1.0" } }, "required": ["schema_version"] },
+      "then": { "properties": { "previous_basis": { "type": "object", "additionalProperties": false, "required": ["repository", "commit_sha"], "properties": { "repository": { "type": "string", "minLength": 2 }, "commit_sha": { "$ref": "urn:forgeway:common:v1#/$defs/commitSha" } } } } }
+    },
+    {
+      "if": { "properties": { "schema_version": { "const": "1.1" } }, "required": ["schema_version"] },
+      "then": { "properties": { "previous_basis": { "type": "array", "minItems": 1, "items": { "$ref": "urn:forgeway:common:v1#/$defs/basisRef" } } } }
+    }
+  ]
+}

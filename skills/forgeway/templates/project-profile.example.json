@@ -1,0 +1,10 @@
+{
+  "schema_version": "forgeway-project-profile/1",
+  "roles": [],
+  "preferences": {
+    "language": "zh-CN",
+    "response_style": "concise",
+    "document_style": "final",
+    "question_mode": "structured"
+  }
+}

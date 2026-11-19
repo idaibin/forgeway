@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Tab Mock · 项目接口场景</title><link rel="stylesheet" href="manager.css"></head>
+<body><header><div><p class="eyebrow">LOCAL REQUEST WORKSPACE</p><h1>Tab Mock <span>项目接口场景</span></h1><p>选择一个标签页，让接口按你的场景响应。</p></div><nav aria-label="配置文件"><button id="import">导入配置</button><button id="export">导出全部</button><input id="file" type="file" accept="application/json,.json" hidden></nav></header>
+<p id="notice" role="status" aria-live="polite">正在读取本地配置…</p>
+<div class="layout"><aside class="card"><div class="section-title"><h2>项目</h2><button id="new">＋ 新建</button></div><div id="projects"></div><p class="hint">数据仅保存在此扩展的 IndexedDB 中。定期导出，方便跨项目复用。</p></aside>
+<main><section class="card"><div class="section-title"><h2 id="project-title">选择项目</h2><div><button id="duplicate">复制项目</button> <button id="delete" class="danger">删除</button></div></div>
+<div class="form-grid"><label>环境<select id="environment"></select></label><label>场景<select id="scenario"></select></label><label class="wide">目标标签页 <button id="refresh" class="small" type="button">刷新列表与日志</button><select id="tab"></select></label></div>
+<p id="scope" class="scope"></p><p class="hint">请核实目标页面连接的本地或测试环境。相同域名不能证明环境身份。受保护 API 范围内未匹配请求默认阻断，其他接口保持原行为。</p>
+<div class="actions"><button id="arm" class="primary">开启此标签页</button><button id="reload">刷新目标页</button><button id="stop">关闭此标签页</button></div><p class="hint">首次开启后刷新，覆盖页面最早的请求。编辑配置后需重新开启。关闭会取消仍在等待的 Mock。</p>
+<div class="actions"><button id="auto-enable" disabled>自动启用此环境</button><button id="auto-disable" disabled>关闭此环境自动启用</button></div><p id="automatic" class="hint"></p>
+<div class="table-scroll"><table><thead><tr><th>语义 / 动作</th><th>规则 / 请求路径</th><th>HTTP</th><th>延迟</th></tr></thead><tbody id="rules"></tbody></table></div></section>
+<section class="card"><h2>已启用标签页 <span id="active-count" class="count">0</span></h2><div id="bindings"></div></section>
+<section class="card"><div class="section-title"><h2>项目配置</h2><button id="save">保存项目 JSON</button></div><label for="editor">编辑项目、环境、场景和规则</label><textarea id="editor" spellcheck="false" rows="18" aria-describedby="editor-help"></textarea><p id="editor-help" class="hint">规则按顺序首条命中。read / write 表达业务语义；mock 返回模拟 JSON，block 拒绝请求，pass 将真实发送。HTTP status 与 response.body 中的业务码独立。body / query 可配置子集匹配；完整格式见交付目录 docs/CONFIG.md。</p></section>
+<section class="card"><div class="section-title"><h2>命中与阻断日志 <span class="count">最近 200 条</span></h2><button id="clear">清空日志</button></div><p class="hint">仅记录方法、路径、规则和结果，不记录参数、正文或认证信息。</p><div class="table-scroll"><table><thead><tr><th>时间 / 标签</th><th>方法 / 路径</th><th>规则</th><th>结果</th><th>耗时</th></tr></thead><tbody id="logs"></tbody></table></div></section>
+<footer>覆盖顶层页面 fetch 与异步 XHR。iframe、Worker、流与其他网络通道不在本版范围；Mock 不替代真实接口验收。</footer></main></div><script type="module" src="manager.js"></script><p class="hint">只读规则可配置 fallback.statuses 与 fallback.emptyPaths：先请求真实接口，仅指定状态或成功空载荷时使用样例；具体状态、载荷路径和响应数据由导入的项目配置决定。</p>
+</body></html>
