@@ -8,7 +8,7 @@ Forgeway 为已有交付产物提供统一的只读检查入口。调用方明�
 
 - `forgeway artifact doctor` 检查 Python 3.10+、`file` 和可选的 `lipo`。缺少 Python 运行时，Forgeway 返回运行时错误；`file` 或 `lipo` 不可用时，检查结果只声明实际取得的观察。
 - `forgeway artifact inspect <path>...` 对每个文件报告存在性、非空性、SHA-256、文件类型和可检测架构。ZIP/TAR 还报告成员、成员总数及不安全路径；`--max-members` 只限制返回的成员列表，不改变成员存在性断言。
-- 检查规则版本为`0.2.0`。归档含符号链接或硬链接即判`archive-safe-paths`失败：TAR按成员类型识别符号链接和硬链接，ZIP按`external_attr`高16位的文件类型识别符号链接，不依赖creator平台标识。不解析或读取链接目标；归档内目标、外部目标、链接链与循环均拒绝。命中成员名按归档顺序写入`unsafe_paths`，不受`--max-members`截断限制，JSON `ok=false`且退出码为1。ZIP无通用硬链接类型，格式扩展未声明的链接语义不在该检查保证范围内。
+- 检查规则版本为`0.2.1`。归档含符号链接或硬链接即判`archive-safe-paths`失败：TAR按成员类型识别符号链接和硬链接，ZIP按`external_attr`高16位的文件类型识别符号链接，不依赖creator平台标识。不解析或读取链接目标；归档内目标、外部目标、链接链与循环均拒绝。命中成员名按归档顺序写入`unsafe_paths`，不受`--max-members`截断限制，JSON `ok=false`且退出码为1。ZIP无通用硬链接类型，格式扩展未声明的链接语义不在该检查保证范围内。
 - 可重复传入 `--expected-arch <arch>` 与 `--require-member <member>`。任何已执行的断言失败时，JSON `ok` 为 false 且退出码为 1；正常通过为 0。输入或运行时错误单独返回非 0，不伪装为检查失败。
 - `--max-members`只接受一个十进制正整数字符串，数值不超过JavaScript安全整数范围；缺值、重复值、小数、科学计数及十六进制表示均返回`ARTIFACT_INPUT_INVALID`、退出码2。Python参数解析拒绝也归为输入错误；运行时不可用或返回无效结果为退出码3。传给Python的路径和预期值保持字面含义，不让Python将其解释为新选项。
 - 输入文件保持原样，检查器不提取归档内容，也不执行归档中的文件。哈希和成员信息只证明该次读取的文件内容，不代替构建身份、签名、设备运行或部署验收。

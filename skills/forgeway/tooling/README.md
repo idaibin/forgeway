@@ -119,7 +119,7 @@ fast-forward described above.
 `forgeway artifact inspect <path>...` reads existing files and reports SHA-256, file
 type, detectable architectures, and ZIP/TAR member names. Repeat `--expected-arch`
 and `--require-member` to assert expectations; `--max-members <count>` limits the
-reported member list. Rule version `0.2.0` rejects every TAR symbolic/hard link and
+reported member list. Rule version `0.2.1` rejects every TAR symbolic/hard link and
 every ZIP member whose external file type declares a symbolic link, regardless of
 its target. Rejected member names appear in `unsafe_paths`, including members beyond
 the listing limit. ZIP private link extensions and actual extraction behavior are

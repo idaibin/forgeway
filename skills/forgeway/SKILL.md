@@ -1,9 +1,11 @@
 ---
 name: forgeway
-description: Coordinate software delivery in projects that adopt Forgeway or when requested in natural language. Also use its bundled browser Mock for project API/interface Mock verification of real Web or H5 pages, even without full workflow adoption. Select only applicable stages and Skills while preserving project authority; unrelated standalone specialist work does not require Forgeway.
+description: Coordinate software delivery in projects that adopt Forgeway or when requested in natural language. Route testing (测试、回归、全量、边界、攻击性业务测试) and expert review (专家审查) in adopting projects. Also use its bundled browser Mock for project API/interface Mock verification of real Web or H5 pages, even without full workflow adoption. Select only applicable stages and Skills while preserving project authority; unrelated standalone specialist work does not require Forgeway.
 ---
 
 # Forgeway
+
+For testing, regression, full-suite, boundary, adversarial business testing or expert review requests, apply [test and review intent](standards/evidence.md#test-and-review-intent) to select scope, handle optional clarification and execute the applicable stage. When summarizing a browser receipt, give separate verdicts for the rendered UI and the real service, including during a verification handoff. Identify synthetic or unknown response provenance explicitly.
 
 ## Review of submission and failure feedback
 

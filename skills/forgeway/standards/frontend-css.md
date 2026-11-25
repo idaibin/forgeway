@@ -33,5 +33,6 @@
 
 - 格式化、预处理、lint、build 和 selector 比较只证明静态边界，不能满足 browser Gate。
 - 选定视觉源的一次有效同 viewport/state 对照覆盖全部 required viewport/state 且通过后即可结束，不得为凑次数重复未变化的检查，也不得为强制两轮而虚构 mismatch。实际修复后仅复验受影响状态，并保留纠正前的失败和纠正后的 runtime evidence；新要求或证据失效时复核对应范围。项目明确要求的额外轮次 MUST 保留。
+- 短暂可见的视觉缺陷 MUST 在原交互达到对应状态时检查实际呈现。对等待态可挂起响应并在取证后恢复。验证回归用例时，已知故障版本或单因素反例 MUST 在对应缺陷的断言层失败，恢复后同一断言 MUST 通过。裁切用例应保留控件布局尺寸，单独验证实际绘制范围；动态过程需按对应运行环境另行取证。
 - UI 合同要求的 breakpoint、hover、focus-visible、loading、empty、error、disabled 和 overflow 均是独立目标，不能由桌面默认态代替。
 - 视觉完成 MUST 同时具有 acceptance-to-owner mapping、一次有效同 viewport/state 对照、适用的 computed geometry/style 和全部 required viewport/state；缺失项保持 `Not verified`。

@@ -13,6 +13,8 @@
 
 Execute the required verification matrix against an exact source/Result Package basis and record independent Evidence axes. Apply the [functional acceptance inventory](../standards/evidence.md#functional-acceptance-inventory) rules through the target project's existing test entry and records. Verification observes and validates; it does not edit source or authorize Delivery.
 
+Resolve requested test scope and any optional choice using [test and review intent](../standards/evidence.md#test-and-review-intent).
+
 ## Entry contract
 
 - current Implementation Result Package or an explicitly fixed read-only basis;
@@ -75,7 +77,7 @@ A completed result MUST satisfy:
 - `evidence-bound-to-exact-basis-and-result-package`;
 - `verification-gaps-and-rerun-scope-recorded`.
 
-Return Evidence/Observation refs, per-gate states, exact commands/targets, findings, environment blocks, rerun scope, and `Not verified` boundaries. Verification may be `Pass`, `Fail`, `Partial`, or `Blocked` per gate; it is not the independent Review verdict.
+Return Evidence/Observation refs, per-gate states, exact commands/targets, findings, environment blocks, rerun scope, and `Not verified` boundaries. For a browser receipt, identify what the UI rendered, where the data came from and which real-service behavior remains unobserved. Verification may be `Pass`, `Fail`, `Partial`, or `Blocked` per gate; it is not the independent Review verdict.
 
 ## Stop states
 

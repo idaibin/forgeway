@@ -27,8 +27,8 @@ or making every independent Skill depend on Forgeway.
   completeness validation and non-implementer human approval bound to its exact hash.
   Source extraction cannot approve its own result.
 - After a design baseline is accepted, each new page receives its own feature UI spec.
-  Implementation is compared with the selected source at the same viewport/state in
-  two browser passes before review and delivery.
+  Before review and delivery, compare the implementation at the same viewport and state
+  under the [visual verification standard](../standards/frontend-css.md#verification).
 - UI confirmation images and browser screenshots are Product UI evidence. Image,
   video, audio, poster and other content-production tasks remain Createway work.
 - Every Skill remains independently callable. Forgeway sequences only the owners
@@ -96,7 +96,7 @@ the exact result basis.
 | `PU-SOURCE-02` | Supplied design sources retain stable identity, hash/revision, rights/use and evidence limitations. |
 | `PU-SOURCE-03` | Shared semantics enter `DESIGN.md`; page-local composition remains in feature UI specs. |
 | `PU-SOURCE-04` | Candidate preview generation stops for named human selection before implementation. |
-| `PU-SOURCE-05` | Implemented pages complete two same-viewport/state source comparisons and required responsive/accessibility checks. |
+| `PU-SOURCE-05` | Implemented pages follow the [visual verification standard](../standards/frontend-css.md#verification) and complete required responsive/accessibility checks. |
 | `PU-SOURCE-06` | PRD, UI spec, DESIGN, guidance, repo graph, source and tests retain separate semantic owners. |
 | `PU-BUG-01` | A repeatable image-plus-text bug experiment reports navigation effort, patch scope, browser outcome and impact-validation coverage for direct and repo-map paths. |
 

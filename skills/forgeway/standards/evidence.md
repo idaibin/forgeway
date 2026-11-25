@@ -63,6 +63,13 @@ special-purpose patched package MUST NOT establish correspondence with the compl
 current checkout. Package inspection does not establish which bytes a device loaded;
 installation/loading and business behavior retain their separate evidence axes.
 
+Report Mock, real-service and installed-host results against their respective
+versions. When the target device still runs an older build, keep the new build’s
+device result unverified. For distributed updates, cover eligible, incompatible and
+legacy clients under the project’s platform/runtime/base-version rules. Verify the
+offered artifact or absence of an offer, then verify rollout inclusion, exclusion
+and recovery on the deployed service and the client that actually loaded the result.
+
 ## Project test asset ownership
 
 Verification MUST treat the target application's source and runtime configuration as read-only. Test plans,
@@ -75,6 +82,13 @@ application source, public resources, ordinary development configuration and rel
 artifacts. A directory or ignore rule alone does not prove those boundaries. Verify
 the selected roots, dependencies, entry points and release boundaries. Business ownership stays
 with the target's accepted Product/UI/API authorities; it does not determine storage.
+
+Keep reusable test cases, scripts, fixtures and test configuration in their adopted
+test workspace. Default one-off run reports, logs, screenshots, recordings and raw
+evidence to a verified ignored `.codex/` location in that workspace, rather than
+maintained `docs/`. An explicit user or project requirement for a durable report
+may select another authorized location. Do not move or delete historical records
+without tracing their consumers and obtaining the applicable authorization.
 
 Bind each test run to the exact target source checkout, source revision,
 relevant dirty hashes and test-workspace revision or content identity. Resolve the source path
@@ -102,6 +116,29 @@ business data, authentication and unrelated settings. Existing asset migration m
 trace its consumers and update discovery and external execution together within the
 explicitly authorized scope; a test-content prohibition does not authorize silently
 deleting an existing suite or skipping its checks.
+
+## Test and review intent
+
+In Forgeway projects the current agent owns execution and result collection. Resolve a compatible verifier or reviewer using the host's available capabilities. Reuse the project's cases, fixtures and runner. Fix the basis to the requested revision or, by default, the current checkout including relevant uncommitted changes. An explicit request for a plan, cases only or review only limits the work accordingly.
+
+| User intent (examples) | Scope and result |
+| --- | --- |
+| Test current work (测试、测一下、验收一下) | Execute the current task's cases, directly affected paths and necessary failure branches. For user-visible behavior, exercise the relevant user journey. |
+| Regression (回归、回归测试) | Include affected consumers, nearby workflows and relevant previous defects. Use the change impact to select existing cases. |
+| Full (全量测试、完整测试、全量回归) | Execute the entire existing test plan for the named system, clients and environments within authorization. Reconcile its inventory with passed, failed, blocked and unexecuted cases. If the inventory is incomplete, report what ran and the coverage gap. |
+| Boundary (边界测试、异常测试) | Exercise limits and transitions with explicit expected outcomes, e.g. empty/one/full page, just before/at a threshold, duplicate actions, disconnect/reconnect. |
+| Adversarial business testing (攻击性测试、对抗性业务测试) | Combine business actions, timing and recoverable failures to challenge invariants such as single submission, retained input or correct navigation. A separate request concerning access control or security requires its own scope. |
+| Expert review (专家审查、代码评审) | Fix the review basis and original requirements. Use an independent reviewer when available and authorized, otherwise identify the result as self-review. Run targeted checks to substantiate findings. Return findings and remaining uncertainty. |
+
+Preserve combinations: “移动端全量回归并做边界测试” selects the complete mobile plan plus relevant boundary cases; “专家审查并全量回归” requests both outputs. A repetition count applies to each specified scenario.
+
+### Optional scope clarification
+
+Ask only when plausible interpretations materially change the work and context does not settle the choice. Ask about the unresolved dimension alone. If the user already said “全量”, keep full depth in every option. For example, if both clients changed and the target of “完整跑一遍” is unclear, offer both affected clients (default), employee only, or mobile only. Show the actual default, its rationale and the 30-second response window before starting it.
+
+Use a host-native choice dialog when available. During the window, prepare only common work such as identifying builds, cases and prerequisites. On reply, apply it once; on timeout, check for a pending answer before selecting the displayed, already-authorized default. Record the selected scope and whether it came from the user or the timeout. A later reply steers remaining work without duplicating completed cases. When the host can continue asynchronously but lacks a dialog, use the same visible choice in chat. On a blocking-only host, offer the choice without promising automatic continuation; if asking is optional and an authorized default is clear, state the assumption and proceed.
+
+Timeout resolves optional scope preferences only. A required decision, missing authority, permission to change production or destructive action remains pending. Reuse the project's evidence policy for simulator, Mock, live gateway and device results. Product defects go to implementation; the verifier reruns the original failing case and affected regression on the corrected basis.
 
 ## Functional acceptance inventory
 
@@ -153,6 +190,24 @@ cache, slow/failed/out-of-order responses, permission allowance/denial, duplicat
 operations and recovery/retry. Changes to interfaces, request wrappers, authentication,
 project selection, cache, response parsing or timing MUST resolve affected direct and
 indirect callers before selecting regression scope.
+
+For latest-intent navigation or results, use distinct destinations or records, deliver
+the older response last while its handler can still run, and assert both the final
+state and every navigation or write. When reporting a browser receipt, name the UI observation and the data source. If the source was synthetic or its provenance is unknown, record real-service behavior as unverified. An earlier response still pending leaves the late-delivery claim open. For cached switching, exercise first entry,
+return to a cached item and a burst of selections. Measure input to selection,
+request start/end and target content update separately; record request counts and
+the final selection. Local timings are observations unless the project owns a budget.
+
+For repeated release or recovery checks, reconcile the agreed host, scenario and round against actual case outcomes. Keep the initial failing run and the later candidate on their own build and policy basis. A reload claim needs a new main document, navigation evidence, the executing build identity and usable target content. Record manifest-only loss separately from a whole client going offline and returning online.
+
+For asynchronous forms, bind a receipt to the initiating operation and record. Switch to a different target while the old result is outstanding, release it and observe both forms. For media, capture the intended resource before a fallback can replace it. Verify its response and decode separately from the user's ability to continue with the fallback.
+
+For operations with a durable submission key, exercise a lost reply after commit
+in an authorized isolated environment. Query by the original key, replay according
+to the contract, and compare row identities and durable effects. Include a changed
+payload with the same key and distinguish pending from completed. For scoped access,
+use the same fixture across allowed, read-only and out-of-scope identities; compare
+service decisions, visible actions and readback for unintended changes.
 
 Case results MUST retain PASS, FAIL, BLOCKED, NOT RUN and N/A independently, with
 missing required evidence labelled `Not verified`. These case labels do not replace

@@ -1,5 +1,7 @@
 # 09 Review
 
+Resolve review-only and combined regression requests using [test and review intent](../standards/evidence.md#test-and-review-intent).
+
 ## Stage contract
 
 - Stage ID: `review`
