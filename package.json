@@ -1,0 +1,10 @@
+{
+  "name": "forgeway-maintenance",
+  "private": true,
+  "engines": {
+    "node": "24.x"
+  },
+  "scripts": {
+    "test": "node tests/workspace/test-system-benchmark.mjs && node tests/workspace/test-index-benchmark.mjs"
+  }
+}

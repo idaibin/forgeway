@@ -14,6 +14,10 @@ try {
     const stmt = db.prepare(sql);
     return { plan: db.prepare("EXPLAIN QUERY PLAN " + sql).all(...args), read: () => stmt.all(...args), samples: [] };
   });
+  // Check access to the data table without depending on SQLite's plan IDs.
+  const details = profiles.map(profile => profile.plan.map(row => row.detail));
+  assert.ok(details[0].some(detail => /^SCAN items$/.test(detail)), JSON.stringify(details[0]));
+  assert.ok(details[1].some(detail => /^SEARCH items USING INDEX items_owner_id \(owner_id=\?\)/.test(detail)), JSON.stringify(details[1]));
   const expected = Array.from({length: 20}, (_, i) => 2804 + i*100);
   for (let i=0; i<110; i++) {
     for (const p of i%2 ? profiles : [...profiles].reverse()) {
