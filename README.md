@@ -17,6 +17,17 @@ npm --prefix "$PWD/.agents/skills/forgeway" ci --omit=dev --ignore-scripts
 node "$PWD/.agents/skills/forgeway/tooling/forgeway.mjs" version
 ```
 
-开发测试、历史台账和原始验收材料由维护者保存在各自的工作区。
+## 维护与回归
+
+本仓库是 Forgeway 的维护入口。运行规范和 CLI 位于 `skills/forgeway/`，可重跑的项目测试位于 `tests/`。在同一提交中更新实现和相应测试。历史评测、录屏和原始日志按项目归档。
+
+在仓库根目录使用上述 Node 版本和锁定依赖运行首批基准：
+
+```sh
+node tests/workspace/test-system-benchmark.mjs
+node tests/workspace/test-index-benchmark.mjs
+```
+
+HTTP 基准在临时目录调用包内 CLI 生成示例，检查回环服务响应、分页、同用户双令牌和重启读回。12 个负载阶段共校验 1,440 次列表读取，输出逐请求耗时与终态。SQLite 基准使用示例迁移和合成数据，对照全表扫描与现有索引，每次核对同一组 20 条结果。两项基准的耗时仅用于同条件比较。
 
 [Skill 入口](skills/forgeway/SKILL.md) · [CLI 说明](skills/forgeway/tooling/README.md)
