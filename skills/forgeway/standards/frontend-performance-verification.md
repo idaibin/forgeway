@@ -92,6 +92,10 @@ observed sample count and the aggregation used. An empty sample set MUST NOT bec
 a measured `0 ms` or pass a required latency gate. Report the missing observation and
 its known reason (for example, no qualifying interaction, unsupported API, incomplete
 window or threshold filtering); an unknown reason stays unknown.
+For an accepted latency gate, bind eligible observations to each required interaction
+case and its measurement window. A nonempty aggregate does not satisfy a missing
+required case. Keep that case Not verified and preserve any separately observed
+budget failure and business outcome.
 
 The [13 October 2026 Event Timing Working Draft](https://www.w3.org/TR/2026/WD-event-timing-20261013/#sec-events-measured)
 describes `event` entries as threshold-filtered, with a default of 104 ms and an
