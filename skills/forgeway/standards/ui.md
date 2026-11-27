@@ -35,8 +35,8 @@
   accessibility 证据，并保留 console/coverage 限制。
 - Forgeway 内部 Product UI module MUST 只消费 Delivery Graph 投影或明确的目标项目 API；
   页面不得写回、重算或根据展示状态提升 Gate。
-- 项目采用 Google `DESIGN.md` shared authority 时，official format lint 只证明格式可读。Forgeway 的
-  UI specified/reviewed Gate MUST 同时消费 `ui.contract.specify@1.2.0` 的
+- 项目采用 Google `DESIGN.md` shared authority 时，official format lint 只证明格式可读。仅在项目明确额外采用 completeness 策略时，Forgeway 的
+  UI specified/reviewed Gate MUST 同时消费 `ui.contract.specify@1.3.0` 的
   `ui-spec-design-completeness/1` 结果、精确 DESIGN/source/approval artifact hashes、Result
   PackageManifest，以及 host-trusted approval authorization receipt。
 - `ready-for-human-approval`、`not-ready`、本地
