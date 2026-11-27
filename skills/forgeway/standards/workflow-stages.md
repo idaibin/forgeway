@@ -16,6 +16,10 @@ Forgeway 的交付生命周期 MUST 由统一 Stage Contract 表达。Stage 只�
 
 Stage 文档 MUST 使用统一章节：`Stage contract`、`Purpose`、`Entry contract`、`Procedure`、`Exit contract`、`Stop states`、`Resume and invalidation`、`Brownfield behavior`、`Validation`。Workflow 只排序和应用已有 Standards，不得在不同 Stage 复制或弱化同一规则。
 
+## Standalone read-only entry
+
+针对已固定版本的独立审查或验证，运行 `node tooling/workflow-stage.mjs standalone review <full-commit-sha>` 或 `standalone verify <full-commit-sha>`。也可传入 `sha256:<64-hex>` 标识固定快照。宿主须核对目标与输入标识一致，并限定只读范围。返回值提供阶段、能力请求和工作流引用，供独立任务使用。完整交付仍由 `next` 按同一 Run 的前序记录和证据推进。
+
 ## Earliest missing stage
 
 Forgeway MUST 从目标 goal 的第一个 Stage 开始顺序计算：

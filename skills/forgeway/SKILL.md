@@ -1,11 +1,11 @@
 ---
 name: forgeway
-description: Coordinate software delivery in projects that adopt Forgeway or when requested in natural language. Route testing (测试、回归、全量、边界、攻击性业务测试) and expert review (专家审查) in adopting projects. Also use its bundled browser Mock for project API/interface Mock verification of real Web or H5 pages, even without full workflow adoption. Select only applicable stages and Skills while preserving project authority; unrelated standalone specialist work does not require Forgeway.
+description: Coordinate software delivery in projects that adopt Forgeway or when requested in natural language. Route testing (测试、回归、全量、边界、异常与竞态测试) and expert review (专家审查) in adopting projects. Also use its bundled browser Mock for project API/interface Mock verification of real Web or H5 pages, even without full workflow adoption. Select only applicable stages and Skills while preserving project authority; unrelated standalone specialist work does not require Forgeway.
 ---
 
 # Forgeway
 
-For testing, regression, full-suite, boundary, adversarial business testing or expert review requests, apply [test and review intent](standards/evidence.md#test-and-review-intent) to select scope, handle optional clarification and execute the applicable stage. When summarizing a browser receipt, give separate verdicts for the rendered UI and the real service, including during a verification handoff. Identify synthetic or unknown response provenance explicitly.
+For testing, regression, full-suite, boundary, failure and race-condition testing or expert review requests, apply [test and review intent](standards/evidence.md#test-and-review-intent) to select scope, handle optional clarification and execute the applicable stage. When summarizing a browser receipt, give separate verdicts for the rendered UI and the real service, including during a verification handoff. Identify synthetic or unknown response provenance explicitly.
 
 ## Review of submission and failure feedback
 
@@ -55,6 +55,8 @@ project-discovery -> product-requirement -> solution-contracts (conditional) -> 
 ```
 
 Supported goals stop at `project-discovery` (`inspect`), `spec-readiness` (`to-spec`), `implementation`, `verification`, `review`, or `close` (`deliver`); a goal selects a terminal Stage, it does not create a parallel workflow. A Stage counts as completed only when its contract version, current basis, result identity, Evidence, and every exit condition match; Conditional Stages require an explicit applicable or not-applicable decision. Resume an existing running Attempt; return blocked/stale state without bypassing it. If basis, authority, contract, source package, Evidence, review basis, delivery target, or receipt changes, resume from the earliest invalidated Stage and treat dependent stages as stale. The Stage projection is derived guidance and always has `authorizes_execution=false`; the host still resolves one live capability and computes `user scope ∩ host scope ∩ capability maximum` before invocation.
+
+For independent review or verification on a fixed revision, use the [read-only selector entry](standards/workflow-stages.md#standalone-read-only-entry).
 
 When the host exposes explicit workflow state and a Delivery Graph, the optional
 single-step dispatch consumer follows [the Stage dispatch contract](standards/workflow-stages.md#single-step-dispatch-view).

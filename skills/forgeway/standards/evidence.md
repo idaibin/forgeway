@@ -127,7 +127,7 @@ In Forgeway projects the current agent owns execution and result collection. Res
 | Regression (回归、回归测试) | Include affected consumers, nearby workflows and relevant previous defects. Use the change impact to select existing cases. |
 | Full (全量测试、完整测试、全量回归) | Execute the entire existing test plan for the named system, clients and environments within authorization. Reconcile its inventory with passed, failed, blocked and unexecuted cases. If the inventory is incomplete, report what ran and the coverage gap. |
 | Boundary (边界测试、异常测试) | Exercise limits and transitions with explicit expected outcomes, e.g. empty/one/full page, just before/at a threshold, duplicate actions, disconnect/reconnect. |
-| Adversarial business testing (攻击性测试、对抗性业务测试) | Combine business actions, timing and recoverable failures to challenge invariants such as single submission, retained input or correct navigation. A separate request concerning access control or security requires its own scope. |
+| Failure and race-condition testing (异常与竞态测试) | Combine business actions, timing and recoverable failures to challenge invariants such as single submission, retained input or correct navigation. A separate request concerning access control or security requires its own scope. |
 | Expert review (专家审查、代码评审) | Fix the review basis and original requirements. Use an independent reviewer when available and authorized, otherwise identify the result as self-review. Run targeted checks to substantiate findings. Return findings and remaining uncertainty. |
 
 Preserve combinations: “移动端全量回归并做边界测试” selects the complete mobile plan plus relevant boundary cases; “专家审查并全量回归” requests both outputs. A repetition count applies to each specified scenario.

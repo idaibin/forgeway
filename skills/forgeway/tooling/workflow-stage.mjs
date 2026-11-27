@@ -126,6 +126,7 @@ function usage() {
     schema_version: "forgeway-workflow-cli-help/2",
     cli_protocol_version: WORKFLOW_CLI_PROTOCOL_VERSION,
     usage: [
+      "node tooling/workflow-stage.mjs standalone <review|verify> <full-commit-sha|sha256:fingerprint>",
       "node tooling/workflow-stage.mjs validate [--registry runtime/stages.json] [--skills-index <skills-index.json>]",
       "node tooling/workflow-stage.mjs next --view dispatch --copy-snapshot --state <workflow-state.json> --delivery-db <delivery.sqlite> [--skills-index <skills-index.json> --adapters <adapters.json>] [--capability-id <id>] [--adapter-id <id>]",
       "node tooling/workflow-stage.mjs next --copy-snapshot --state <workflow-state.json> --delivery-db <delivery.sqlite> [--registry runtime/stages.json] [--output <file>]"
@@ -720,6 +721,28 @@ async function main() {
 
   if (command === "help" || flags.help) {
     emit(usage(), flags);
+    return;
+  }
+  if (command === "standalone") {
+    const [, goal, basis] = positionals;
+    if (positionals.length !== 3 || Object.keys(flags).length ||
+        !["review", "verify"].includes(goal) ||
+        !(/^(?:[0-9a-f]{40}|[0-9a-f]{64})$/.test(basis) || isSha256Fingerprint(basis))) {
+      throw new Error("standalone requires review or verify and an immutable full Git SHA or sha256 fingerprint");
+    }
+    const registry = readStageRegistry();
+    const stage = registry.stages.find(item => item.id === registry.goals[goal].terminal_stage);
+    emit({
+      schema_version: "forgeway-standalone-stage/1",
+      goal,
+      basis,
+      stage_id: stage.id,
+      contract_version: stage.contract_version,
+      workflow_ref: stage.workflow_ref,
+      capability_request: stage.capability_request,
+      maximum_effect: "read-only",
+      authorizes_execution: false
+    });
     return;
   }
   const registryPath = path.resolve(flags.registry || DEFAULT_REGISTRY);

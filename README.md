@@ -21,7 +21,7 @@ node "$PWD/.agents/skills/forgeway/tooling/forgeway.mjs" version
 
 本仓库是 Forgeway 的维护入口。运行规范和 CLI 位于 `skills/forgeway/`，可重跑的项目测试位于 `tests/`。在同一提交中更新实现和相应测试。历史评测、录屏和原始日志按项目归档。
 
-在仓库根目录使用上述 Node 和 npm 版本安装包内的锁定依赖，再运行根级维护测试。当前入口只执行 HTTP 和 SQLite 两份基准；包校验、分发与宿主加载需分别验证。
+在仓库根目录使用上述 Node 和 npm 版本安装包内的锁定依赖，再运行根级维护测试。当前入口覆盖固定版本的只读阶段选择、完整流程的初始阶段，以及 HTTP 和 SQLite 两份基准；包校验、分发与宿主加载需分别验证。
 
 ```sh
 npm --prefix skills/forgeway ci --omit=dev --ignore-scripts
