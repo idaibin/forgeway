@@ -260,6 +260,13 @@ remain the machine trace; a report or replay cannot upgrade an evidence level.
 None of these states authorizes fallback, retry, provider switching, scope expansion,
 or a later-stage owner.
 
+After restart or context compaction, reopen the existing Run/Attempt. Resolve its
+Task, exact source/Result Package, approval and Evidence references from their
+owners before resuming. A summary, pending approval, or process exit is not
+proof of the authorized effect. Reconcile the same operation before retrying;
+cancellation, expiry, changed scope/target, or an unresolved effect must stop
+dispatch. Never apply an old approval to a new Attempt.
+
 ## Single-step consumer
 
 The opt-in [dispatch view](../standards/workflow-stages.md#single-step-dispatch-view)

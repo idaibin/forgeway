@@ -33,6 +33,9 @@
   静态 DOM 检查或 UI 文本不得满足 browser Gate；browser Gate MUST 消费绑定同一 Result
   Package 的 `runtime-observation`，覆盖 UI spec 指定的 viewport、交互、responsive 和
   accessibility 证据，并保留 console/coverage 限制。
+- 核组件或 token 可用性时，按每个受影响应用实际解析的包、版本及导出核对。
+  最新文档、内置目录或相邻应用均不证明当前应用可用；只有这些证据时记
+  `Not verified`，浏览器交互仍须独立验收。
 - Forgeway 内部 Product UI module MUST 只消费 Delivery Graph 投影或明确的目标项目 API；
   页面不得写回、重算或根据展示状态提升 Gate。
 - 项目采用 Google `DESIGN.md` shared authority 时，official format lint 只证明格式可读。仅在项目明确额外采用 completeness 策略时，Forgeway 的

@@ -5,6 +5,6 @@
     "node": "24.x"
   },
   "scripts": {
-    "test": "node tests/workspace/test-standalone-stage.mjs && node tests/workspace/test-system-benchmark.mjs && node tests/workspace/test-index-benchmark.mjs"
+    "test": "node tests/workspace/test-standalone-stage.mjs && node tests/workspace/test-system-benchmark.mjs && node tests/workspace/test-index-benchmark.mjs && node tests/workspace/test-review-reopen.mjs"
   }
 }
