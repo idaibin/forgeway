@@ -46,6 +46,22 @@ including expected absences of extra text, controls and layout regions. Check fo
 raw diagnostics, preserve user input as specified, and record failure
 separately from success and successful empty results.
 
+## Text and interaction boundaries
+
+For affected surfaces, bind input shape and limits to the accepted Product/API contract,
+and line wrapping, clamping or ellipsis to the specific UI consumer. Preview-only
+truncation MUST NOT change the persisted value. Validate input, rendered readback and
+access to full text where required as separate observations, including multiline and
+long values at the relevant viewport and text scale.
+
+For request-driven controls, keep typing response immediate; use debounce only for
+approved request shaping and keep stale results/errors/feedback from replacing the
+latest request state. Use click throttling only for an evidenced repeat risk;
+side-effecting writes still require the existing [action rules](business-scenarios.md#state-and-action-rules).
+Reuse the project's approved public loading and control components with the correct
+page/section/action scope. Proof of a common import is separate from observed loading,
+terminal recovery and usability of independent controls.
+
 ## Project-owned UI boundary
 
 - 前端项目 SHOULD 声明项目拥有的公共 UI 路径，惯例为 `components/ui` 或框架等价目录，并声明一个或多个稳定 public import。
