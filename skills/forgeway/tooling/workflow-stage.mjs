@@ -704,28 +704,9 @@ export function projectNextAction(registry, state, { root = ROOT, deliveryStore 
 async function main() {
   const { positionals, flags } = parseArguments(process.argv.slice(2));
   const command = positionals[0] ?? "validate";
-  if (flags.view !== undefined) {
-    if (flags.view !== "dispatch") throw new Error("unsupported workflow view");
-    if (positionals.length !== 1 || command !== "next") throw new Error("dispatch requires next without extra positional arguments");
-      const seen = new Set();
-      for (const token of process.argv.slice(2).filter(value => value.startsWith("--"))) {
-        if (seen.has(token)) throw new Error(`repeated dispatch option: ${token}`);
-        seen.add(token);
-      }
-      if (flags.compact !== undefined && flags.compact !== true) throw new Error("--compact takes no value");
-      const allowed = new Set(["state", "delivery-db", "registry", "view", "skills-index", "adapters", "capability-id", "adapter-id", "copy-snapshot", "compact", "help"]);
-      for (const [key, value] of Object.entries(flags)) {
-        if (!allowed.has(key) || (!["compact", "help", "copy-snapshot"].includes(key) && typeof value !== "string") || (["compact", "help", "copy-snapshot"].includes(key) && value !== true)) throw new Error(`invalid dispatch option: --${key}`);
-      }
-    }
-
-  if (command === "help" || flags.help) {
-    emit(usage(), flags);
-    return;
-  }
   if (command === "standalone") {
     const [, goal, basis] = positionals;
-    if (positionals.length !== 3 || Object.keys(flags).length ||
+    if (positionals.length !== 3 || process.argv.length !== 5 ||
         !["review", "verify"].includes(goal) ||
         !(/^(?:[0-9a-f]{40}|[0-9a-f]{64})$/.test(basis) || isSha256Fingerprint(basis))) {
       throw new Error("standalone requires review or verify and an immutable full Git SHA or sha256 fingerprint");
@@ -743,6 +724,25 @@ async function main() {
       maximum_effect: "read-only",
       authorizes_execution: false
     });
+    return;
+  }
+  if (flags.view !== undefined) {
+    if (flags.view !== "dispatch") throw new Error("unsupported workflow view");
+    if (positionals.length !== 1 || command !== "next") throw new Error("dispatch requires next without extra positional arguments");
+      const seen = new Set();
+      for (const token of process.argv.slice(2).filter(value => value.startsWith("--"))) {
+        if (seen.has(token)) throw new Error(`repeated dispatch option: ${token}`);
+        seen.add(token);
+      }
+      if (flags.compact !== undefined && flags.compact !== true) throw new Error("--compact takes no value");
+      const allowed = new Set(["state", "delivery-db", "registry", "view", "skills-index", "adapters", "capability-id", "adapter-id", "copy-snapshot", "compact", "help"]);
+      for (const [key, value] of Object.entries(flags)) {
+        if (!allowed.has(key) || (!["compact", "help", "copy-snapshot"].includes(key) && typeof value !== "string") || (["compact", "help", "copy-snapshot"].includes(key) && value !== true)) throw new Error(`invalid dispatch option: --${key}`);
+      }
+    }
+
+  if (command === "help" || flags.help) {
+    emit(usage(), flags);
     return;
   }
   const registryPath = path.resolve(flags.registry || DEFAULT_REGISTRY);

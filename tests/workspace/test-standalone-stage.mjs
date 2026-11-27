@@ -1,4 +1,7 @@
 import assert from "node:assert/strict";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { projectNextAction, readStageRegistry } from "../../skills/forgeway/tooling/workflow-stage.mjs";
@@ -26,4 +29,18 @@ for (const [goal, stage, identity] of [["review", "review", basis], ["verify", "
 }
 for (const args of [["deliver", basis], ["review", "HEAD"], ["verify"], ["verify", basis, "--output", "unused"]]) {
   assert.equal(run(...args).status, 2);
+}
+
+const directory = mkdtempSync(join(tmpdir(), "forgeway-standalone-"));
+try {
+  const target = join(directory, "sentinel");
+  writeFileSync(target, "original");
+  for (const goal of ["review", "verify"]) {
+    const result = run(goal, basis, "--help", "--output", target);
+    assert.equal(result.status, 2);
+    assert.equal(result.stdout, "");
+    assert.equal(readFileSync(target, "utf8"), "original");
+  }
+} finally {
+  rmSync(directory, { recursive: true, force: true });
 }
